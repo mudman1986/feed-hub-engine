@@ -289,7 +289,7 @@ def test_read_json_rejects_non_dict_json(tmp_path):
         raise AssertionError("Expected ValueError for non-dict JSON")
 
 
-def test_require_string_rejects_none_value(tmp_path):
+def test_require_string_rejects_none_value():
     try:
         module._require_string(None, "tag")
     except ValueError as error:
@@ -298,7 +298,7 @@ def test_require_string_rejects_none_value(tmp_path):
         raise AssertionError("Expected ValueError for None value")
 
 
-def test_require_string_rejects_empty_string(tmp_path):
+def test_require_string_rejects_empty_string():
     try:
         module._require_string("", "tag")
     except ValueError as error:

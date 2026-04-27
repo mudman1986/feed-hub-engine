@@ -363,7 +363,7 @@ class TestUpdateManifestMainEntryPoint:
             "MANIFEST": '{"previews":[]}',
             "ACTIVE_BRANCHES": "feature/test\nmain",
         }
-        with patch.dict(os.environ, env, clear=False):
+        with patch.dict(os.environ, env, clear=True):
             main()
 
         manifest_file = tmp_path / "site" / "preview" / MANIFEST_FILENAME
@@ -380,7 +380,7 @@ class TestUpdateManifestMainEntryPoint:
             "MANIFEST": '{"previews":[]}',
             "ACTIVE_BRANCHES": "main",
         }
-        with patch.dict(os.environ, env, clear=False):
+        with patch.dict(os.environ, env, clear=True):
             main()
 
         captured = capsys.readouterr()
