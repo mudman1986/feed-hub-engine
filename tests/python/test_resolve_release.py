@@ -3,7 +3,9 @@
 
 import importlib.util
 import json
+import sys
 from pathlib import Path
+from unittest.mock import patch
 
 # pylint: disable=missing-function-docstring
 
@@ -340,9 +342,6 @@ def test_main_succeeds_and_writes_outputs(tmp_path):
     output_path = tmp_path / "github_output.txt"
     output_path.write_text("", encoding="utf-8")
 
-    import sys
-    from unittest.mock import patch
-
     cli_args = [
         "resolve_release.py",
         "--config",
@@ -370,9 +369,6 @@ def test_main_returns_1_on_validation_failure(tmp_path):
     workflow_path.write_text("jobs: {}", encoding="utf-8")
     readme_path = tmp_path / "README.md"
     readme_path.write_text("no refs here", encoding="utf-8")
-
-    import sys
-    from unittest.mock import patch
 
     cli_args = [
         "resolve_release.py",

@@ -9,6 +9,7 @@ Covers branches and paths not exercised by other test modules.
 import json
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 from utils import (
@@ -78,29 +79,21 @@ class TestGetArticleSortKey(unittest.TestCase):
     """Tests for get_article_sort_key edge cases."""
 
     def test_returns_datetime_min_for_unknown_date(self):
-        from datetime import datetime
-
         article = {"published": "Unknown"}
         result = get_article_sort_key(article)
         self.assertEqual(result, datetime.min)
 
     def test_returns_datetime_min_for_missing_published(self):
-        from datetime import datetime
-
         article = {}
         result = get_article_sort_key(article)
         self.assertEqual(result, datetime.min)
 
     def test_returns_datetime_min_for_invalid_date_string(self):
-        from datetime import datetime
-
         article = {"published": "not-a-date"}
         result = get_article_sort_key(article)
         self.assertEqual(result, datetime.min)
 
     def test_returns_parsed_date_for_valid_iso_string(self):
-        from datetime import datetime
-
         article = {"published": "2024-01-15T09:00:00Z"}
         result = get_article_sort_key(article)
         self.assertIsInstance(result, datetime)
