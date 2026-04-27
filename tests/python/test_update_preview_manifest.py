@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 # pylint: disable=missing-function-docstring,too-few-public-methods
 # pylint: disable=too-many-arguments,too-many-positional-arguments
@@ -27,6 +28,7 @@ if spec is None or spec.loader is None:
 _module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(_module)
 update_manifest = _module.update_manifest
+main = _module.main
 
 
 def _run(
@@ -347,3 +349,39 @@ class TestUpdateManifestFileOutput:
             deep_path,
         )
         assert os.path.exists(deep_path)
+
+
+class TestUpdateManifestMainEntryPoint:
+    """Tests for the main() entry point function."""
+
+    def test_main_creates_manifest_from_environment(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        env = {
+            "SOURCE_BRANCH": "feature/test",
+            "PREVIEW_SLUG": "feature--test",
+            "BASE_URL": "https://example.com/preview/feature--test",
+            "MANIFEST": '{"previews":[]}',
+            "ACTIVE_BRANCHES": "feature/test\nmain",
+        }
+        with patch.dict(os.environ, env, clear=False):
+            main()
+
+        manifest_file = tmp_path / "site" / "preview" / MANIFEST_FILENAME
+        assert manifest_file.exists()
+        written = json.loads(manifest_file.read_text(encoding="utf-8"))
+        assert any(p["slug"] == "feature--test" for p in written["previews"])
+
+    def test_main_prints_entry_count(self, tmp_path, monkeypatch, capsys):
+        monkeypatch.chdir(tmp_path)
+        env = {
+            "SOURCE_BRANCH": "main",
+            "PREVIEW_SLUG": "",
+            "BASE_URL": "https://example.com",
+            "MANIFEST": '{"previews":[]}',
+            "ACTIVE_BRANCHES": "main",
+        }
+        with patch.dict(os.environ, env, clear=False):
+            main()
+
+        captured = capsys.readouterr()
+        assert "Preview manifest updated" in captured.err
