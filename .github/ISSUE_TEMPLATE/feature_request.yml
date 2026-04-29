@@ -1,12 +1,12 @@
 name: ✨ Feature Request
-description: Suggest a new feature or enhancement for DevOps Feed Hub
+description: Suggest a new feature or enhancement for Feed Hub Engine
 title: "[Feature]: "
 labels: ["refining", "enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for suggesting a new feature! We appreciate your ideas for improving DevOps Feed Hub.
+        Thank you for suggesting a new feature! We appreciate your ideas for improving Feed Hub Engine.
 
   - type: textarea
     id: problem

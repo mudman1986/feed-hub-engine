@@ -387,14 +387,16 @@ class TestGenerateSummary(unittest.TestCase):
             mode="w", delete=False, suffix=".html", encoding="utf-8"
         ) as f:
             custom_template = f.name
-            f.write("""<!doctype html>
+            f.write(
+                """<!doctype html>
 <html>
 <head><title>Custom Template</title></head>
 <body>
 <!-- CONTENT_PLACEHOLDER -->
 <footer>Updated: <!-- TIMESTAMP_PLACEHOLDER --></footer>
 </body>
-</html>""")
+</html>"""
+            )
 
         try:
             result = generate_html_page(self.sample_data, custom_template)
@@ -425,14 +427,16 @@ class TestGenerateSummary(unittest.TestCase):
             mode="w", delete=False, suffix=".html", encoding="utf-8"
         ) as f:
             utf8_template = f.name
-            f.write("""<!doctype html>
+            f.write(
+                """<!doctype html>
 <html>
 <head><title>Test 🌙☀️</title></head>
 <body>
 <!-- CONTENT_PLACEHOLDER -->
 <footer><!-- TIMESTAMP_PLACEHOLDER --></footer>
 </body>
-</html>""")
+</html>"""
+            )
 
         try:
             result = generate_html_page(self.sample_data, utf8_template)

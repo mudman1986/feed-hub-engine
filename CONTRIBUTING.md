@@ -1,6 +1,6 @@
-# Contributing to DevOps Feed Hub
+# Contributing to Feed Hub Engine
 
-Thank you for your interest in contributing to DevOps Feed Hub! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to Feed Hub Engine! This document provides guidelines and instructions for contributing to the project.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ This project adheres to the Contributor Covenant Code of Conduct. By participati
 
 ## Getting Started
 
-DevOps Feed Hub is a static RSS feed aggregator that uses GitHub Actions to automatically collect and display DevOps news from various sources.
+Feed Hub Engine hosts the reusable RSS aggregation workflow, shared site generator, and demo deployment used to test feed hub changes before consumers adopt them.
 
 ### Repository Structure
 
@@ -42,8 +42,8 @@ DevOps Feed Hub is a static RSS feed aggregator that uses GitHub Actions to auto
 1. **Fork and clone the repository**:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/devops-feed-hub.git
-   cd devops-feed-hub
+   git clone https://github.com/YOUR_USERNAME/feed-hub-engine.git
+   cd feed-hub-engine
    ```
 
 2. **Install JavaScript dependencies**:
@@ -288,7 +288,7 @@ Include:
 
 ## Recognition
 
-Contributors are recognized in the project and their contributions are valued. Thank you for making DevOps Feed Hub better!
+Contributors are recognized in the project and their contributions are valued. Thank you for making Feed Hub Engine better!
 
 ## License
 
@@ -296,4 +296,4 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 ---
 
-Thank you for contributing to DevOps Feed Hub! 🚀
+Thank you for contributing to Feed Hub Engine! 🚀

@@ -1,7 +1,7 @@
 {
-  "name": "devops-feed-hub",
+  "name": "feed-hub-engine",
   "version": "1.0.0",
-  "description": "DevOps Feed Hub - Centralized RSS feed aggregator for DevOps and tech news",
+  "description": "Feed Hub Engine - Shared RSS aggregation workflows and demo site",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",

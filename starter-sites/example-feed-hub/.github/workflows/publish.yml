@@ -15,10 +15,10 @@ permissions:
 
 jobs:
   publish-pages:
-    uses: mudman1986/devops-feed-hub/.github/workflows/publish-pages.yml@v1.0.1
+    uses: mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v2.0.0
     with:
-      engine-repository: mudman1986/devops-feed-hub
-      engine-ref: v1.0.1
+      engine-repository: mudman1986/feed-hub-engine
+      engine-ref: v2.0.0
       feeds-config-path: config/rss-feeds.json
       site-metadata-path: config/site-metadata.json
     secrets: inherit
