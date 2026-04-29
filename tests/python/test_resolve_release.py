@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring,protected-access
 
 SCRIPT_PATH = (
     Path(__file__).resolve().parents[2] / "scripts" / "workflows" / "resolve_release.py"
