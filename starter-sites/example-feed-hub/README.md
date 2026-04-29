@@ -4,7 +4,7 @@ Copy the contents of this folder into a new repository to bootstrap a
 generic feed hub site that uses the shared Pages workflow from:
 
 ```text
-mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v1.0.1
+mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v2.0.0
 ```
 
 ## Included Files
@@ -65,7 +65,7 @@ When a newer release is available:
 
 1. Review the upstream release notes.
 2. Update `.github/workflows/publish.yml` so both the `uses:` reference and the
-   `engine-ref` input point to the new stable tag (for example `v1.0.1`).
+   `engine-ref` input point to the new stable tag (for example `v2.0.0`).
 3. Commit and push the workflow change.
 
 ## Notes
