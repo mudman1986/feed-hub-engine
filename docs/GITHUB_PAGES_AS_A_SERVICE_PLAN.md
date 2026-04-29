@@ -132,7 +132,7 @@ Then update the generators and template to read branding from this file instead 
 
 Use a reusable workflow in this repository, published and consumed by tag:
 
-- example consumer reference: `mudman1986/devops-feed-hub/.github/workflows/publish-site.yml@v1`
+- example consumer reference: `mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v1`
 - inputs: `site-metadata-path`, `feeds-config-path`, `python-version`, optional `base-path`
 - secrets: only the standard `GITHUB_TOKEN`
 

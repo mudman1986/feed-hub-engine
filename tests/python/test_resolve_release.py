@@ -36,10 +36,10 @@ def _write_release_files(
             [
                 "jobs:",
                 "  publish-pages:",
-                "    uses: mudman1986/devops-feed-hub/.github/workflows/publish-pages.yml@"
+                "    uses: mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@"
                 + tag,
                 "    with:",
-                "      engine-repository: mudman1986/devops-feed-hub",
+                "      engine-repository: mudman1986/feed-hub-engine",
                 f"      engine-ref: {tag}",
                 "",
             ]
@@ -47,7 +47,7 @@ def _write_release_files(
         encoding="utf-8",
     )
     starter_readme_path.write_text(
-        ("mudman1986/devops-feed-hub/.github/workflows/publish-pages.yml@" f"{tag}\n"),
+        ("mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@" f"{tag}\n"),
         encoding="utf-8",
     )
 
@@ -96,7 +96,7 @@ def test_validate_release_metadata_rejects_starter_workflow_mismatch(tmp_path):
         (
             "jobs:\n"
             "  publish-pages:\n"
-            "    uses: mudman1986/devops-feed-hub/.github/workflows/publish-pages.yml@v1.0.1\n"
+            "    uses: mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v1.0.1\n"
         ),
         encoding="utf-8",
     )
@@ -123,9 +123,9 @@ def test_validate_release_metadata_rejects_starter_engine_ref_mismatch(tmp_path)
         (
             "jobs:\n"
             "  publish-pages:\n"
-            "    uses: mudman1986/devops-feed-hub/.github/workflows/publish-pages.yml@v1.0.0\n"
+            "    uses: mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v1.0.0\n"
             "    with:\n"
-            "      engine-repository: mudman1986/devops-feed-hub\n"
+            "      engine-repository: mudman1986/feed-hub-engine\n"
             "      engine-ref: v1.0.1\n"
         ),
         encoding="utf-8",
@@ -153,7 +153,7 @@ def test_validate_release_metadata_rejects_starter_engine_repository_mismatch(tm
         (
             "jobs:\n"
             "  publish-pages:\n"
-            "    uses: mudman1986/devops-feed-hub/.github/workflows/publish-pages.yml@v1.0.0\n"
+            "    uses: mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v1.0.0\n"
             "    with:\n"
             "      engine-repository: mudman1986/example-feed-hub\n"
             "      engine-ref: v1.0.0\n"
@@ -170,7 +170,7 @@ def test_validate_release_metadata_rejects_starter_engine_repository_mismatch(tm
     except ValueError as error:
         assert (
             "engine repository mudman1986/example-feed-hub must match "
-            "mudman1986/devops-feed-hub"
+            "mudman1986/feed-hub-engine"
         ) in str(error)
     else:
         raise AssertionError("Expected starter engine repository mismatch")
@@ -186,7 +186,7 @@ def test_validate_release_metadata_rejects_missing_engine_repository(tmp_path):
         (
             "jobs:\n"
             "  publish-pages:\n"
-            "    uses: mudman1986/devops-feed-hub/.github/workflows/publish-pages.yml@v1.0.0\n"
+            "    uses: mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v1.0.0\n"
             "    with:\n"
             "      engine-ref: v1.0.0\n"
         ),
@@ -215,9 +215,9 @@ def test_validate_release_metadata_rejects_missing_engine_ref(tmp_path):
         (
             "jobs:\n"
             "  publish-pages:\n"
-            "    uses: mudman1986/devops-feed-hub/.github/workflows/publish-pages.yml@v1.0.0\n"
+            "    uses: mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v1.0.0\n"
             "    with:\n"
-            "      engine-repository: mudman1986/devops-feed-hub\n"
+            "      engine-repository: mudman1986/feed-hub-engine\n"
         ),
         encoding="utf-8",
     )
@@ -241,7 +241,7 @@ def test_validate_release_metadata_rejects_readme_mismatch(tmp_path):
         starter_readme_path,
     ) = _write_release_files(tmp_path)
     starter_readme_path.write_text(
-        "mudman1986/devops-feed-hub/.github/workflows/publish-pages.yml@v1.0.1\n",
+        "mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v1.0.1\n",
         encoding="utf-8",
     )
 

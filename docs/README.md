@@ -1,4 +1,4 @@
-# DevOps Feed Hub Documentation
+# Feed Hub Engine Documentation
 
 This directory stores project documentation only.
 
@@ -34,5 +34,5 @@ starter-sites/example-feed-hub/
 ## Live Site
 
 ```text
-https://mudman1986.github.io/devops-feed-hub/
+https://mudman1986.github.io/feed-hub-engine/
 ```

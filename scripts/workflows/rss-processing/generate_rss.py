@@ -21,9 +21,9 @@ from utils import (
 # Default base URL - can be overridden via environment variable or CLI argument
 DEFAULT_BASE_URL = os.getenv(
     "FEED_HUB_BASE_URL",
-    os.getenv("GITHUB_REPOSITORY", "mudman1986/devops-feed-hub").split("/")[0]
+    os.getenv("GITHUB_REPOSITORY", "mudman1986/feed-hub-engine").split("/")[0]
     + ".github.io/"
-    + os.getenv("GITHUB_REPOSITORY", "mudman1986/devops-feed-hub").split("/")[1],
+    + os.getenv("GITHUB_REPOSITORY", "mudman1986/feed-hub-engine").split("/")[1],
 ).rstrip("/")
 
 # Ensure it has https:// prefix

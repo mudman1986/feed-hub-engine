@@ -1,4 +1,4 @@
-name: DevOps Feed Hub
+name: Feed Hub Engine Demo Site
 
 on:
   push:

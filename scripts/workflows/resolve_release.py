@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 SEMVER_TAG_PATTERN = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
-ENGINE_REPOSITORY = "mudman1986/devops-feed-hub"
+ENGINE_REPOSITORY = "mudman1986/feed-hub-engine"
 STARTER_WORKFLOW_REF_PATTERN = re.compile(
     rf"uses:\s+{re.escape(ENGINE_REPOSITORY)}/\.github/workflows/publish-pages\.yml@([^\s]+)"
 )
