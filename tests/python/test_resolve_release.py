@@ -3,7 +3,9 @@
 
 import importlib.util
 import json
+import sys
 from pathlib import Path
+from unittest.mock import patch
 
 # pylint: disable=missing-function-docstring
 
@@ -273,3 +275,111 @@ def test_validate_release_metadata_rejects_missing_readme_reference(tmp_path):
         assert "must mention the reusable workflow release reference" in str(error)
     else:
         raise AssertionError("Expected missing README ref")
+
+
+def test_read_json_rejects_non_dict_json(tmp_path):
+    config_path = tmp_path / "release.json"
+    config_path.write_text('["not", "a", "dict"]', encoding="utf-8")
+
+    try:
+        module._read_json(config_path)
+    except ValueError as error:
+        assert "must contain a JSON object" in str(error)
+    else:
+        raise AssertionError("Expected ValueError for non-dict JSON")
+
+
+def test_require_string_rejects_none_value():
+    try:
+        module._require_string(None, "tag")
+    except ValueError as error:
+        assert "non-empty string" in str(error)
+    else:
+        raise AssertionError("Expected ValueError for None value")
+
+
+def test_require_string_rejects_empty_string():
+    try:
+        module._require_string("", "tag")
+    except ValueError as error:
+        assert "non-empty string" in str(error)
+    else:
+        raise AssertionError("Expected ValueError for empty string")
+
+
+def test_load_starter_workflow_ref_raises_when_ref_missing(tmp_path):
+    workflow_path = tmp_path / "publish.yml"
+    workflow_path.write_text(
+        "jobs:\n  publish:\n    uses: some/other-workflow.yml@main\n",
+        encoding="utf-8",
+    )
+
+    try:
+        module.load_starter_workflow_ref(workflow_path)
+    except ValueError as error:
+        assert "could not find publish-pages reusable workflow ref" in str(error)
+    else:
+        raise AssertionError("Expected ValueError for missing workflow ref")
+
+
+def test_write_github_outputs_appends_tag_and_version(tmp_path):
+    output_path = tmp_path / "github_output.txt"
+    output_path.write_text("", encoding="utf-8")
+
+    module.write_github_outputs(output_path, tag="v2.3.4", version_number="2.3.4")
+
+    content = output_path.read_text(encoding="utf-8")
+    assert "tag=v2.3.4\n" in content
+    assert "version_number=2.3.4\n" in content
+
+
+def test_main_succeeds_and_writes_outputs(tmp_path):
+    (
+        config_path,
+        starter_workflow_path,
+        starter_readme_path,
+    ) = _write_release_files(tmp_path)
+    output_path = tmp_path / "github_output.txt"
+    output_path.write_text("", encoding="utf-8")
+
+    cli_args = [
+        "resolve_release.py",
+        "--config",
+        str(config_path),
+        "--starter-workflow",
+        str(starter_workflow_path),
+        "--starter-readme",
+        str(starter_readme_path),
+        "--github-output",
+        str(output_path),
+    ]
+    with patch.object(sys, "argv", cli_args):
+        exit_code = module.main()
+
+    assert exit_code == 0
+    content = output_path.read_text(encoding="utf-8")
+    assert "tag=v1.0.0" in content
+    assert "version_number=1.0.0" in content
+
+
+def test_main_returns_1_on_validation_failure(tmp_path):
+    config_path = tmp_path / "release.json"
+    config_path.write_text('{"tag": "not-semver"}', encoding="utf-8")
+    workflow_path = tmp_path / "publish.yml"
+    workflow_path.write_text("jobs: {}", encoding="utf-8")
+    readme_path = tmp_path / "README.md"
+    readme_path.write_text("no refs here", encoding="utf-8")
+
+    cli_args = [
+        "resolve_release.py",
+        "--config",
+        str(config_path),
+        "--starter-workflow",
+        str(workflow_path),
+        "--starter-readme",
+        str(readme_path),
+    ]
+    with patch.object(sys, "argv", cli_args):
+        exit_code = module.main()
+
+    assert exit_code == 1

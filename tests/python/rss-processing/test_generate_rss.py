@@ -493,3 +493,81 @@ def test_main_generates_feeds_with_site_metadata_file():
 
         assert "Platform Feed Hub - All Articles" in master_feed
         assert "Platform Feed Hub - Test Feed" in individual_feed
+
+
+def test_format_rfc822_date_invalid_input_returns_fallback():
+    """Test that invalid ISO strings fall back to current time."""
+    result = format_rfc822_date("not-a-valid-date")
+    # Should return a non-empty RFC 822 date string (current time)
+    assert result
+    assert len(result) > 10
+
+
+def test_main_returns_1_when_input_file_missing():
+    """main() should return 1 when the input file does not exist."""
+    with patch(
+        "sys.argv",
+        [
+            "generate_rss.py",
+            "--input",
+            "/nonexistent/path/input.json",
+            "--output-dir",
+            "/tmp/out",
+        ],
+    ):
+        result = main()
+    assert result == 1
+
+
+def test_main_returns_1_when_input_file_has_invalid_json():
+    """main() should return 1 when the input file contains invalid JSON."""
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False, encoding="utf-8"
+    ) as f:
+        f.write("NOT VALID JSON {{{")
+        path = f.name
+
+    try:
+        with patch(
+            "sys.argv",
+            [
+                "generate_rss.py",
+                "--input",
+                path,
+                "--output-dir",
+                "/tmp/out",
+            ],
+        ):
+            result = main()
+    finally:
+        os.unlink(path)
+
+    assert result == 1
+
+
+def test_main_returns_1_when_site_metadata_is_invalid():
+    """main() should return 1 when the site metadata file is invalid."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.json")
+        metadata_path = os.path.join(tmpdir, "site-metadata.json")
+
+        with open(input_path, "w", encoding="utf-8") as f:
+            json.dump({"metadata": {}, "feeds": {}}, f)
+        with open(metadata_path, "w", encoding="utf-8") as f:
+            f.write("INVALID JSON")
+
+        with patch(
+            "sys.argv",
+            [
+                "generate_rss.py",
+                "--input",
+                input_path,
+                "--output-dir",
+                tmpdir,
+                "--site-metadata",
+                metadata_path,
+            ],
+        ):
+            result = main()
+
+    assert result == 1
