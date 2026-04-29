@@ -1,4 +1,4 @@
-name: Publish Feed Hub Pages
+name: Publish Feed Hub Engine Pages
 
 on:
   workflow_call:
@@ -17,7 +17,7 @@ on:
         description: Repository that contains the shared Pages engine scripts
         required: false
         type: string
-        default: mudman1986/devops-feed-hub
+        default: mudman1986/feed-hub-engine
       engine-ref:
         description: Ref in the engine repository that contains the shared Pages engine scripts
         required: true

@@ -24,9 +24,10 @@ from generate_summary import (
     get_template_path,
     inject_website_urls,
 )
-from utils import DEFAULT_SITE_METADATA
+from utils import load_site_metadata
 
 TEMPLATE_PATH = get_template_path()
+REPO_SITE_METADATA = load_site_metadata()
 
 
 class TestGenerateSummary(unittest.TestCase):
@@ -133,7 +134,7 @@ class TestGenerateSummary(unittest.TestCase):
         self.assertIsInstance(result, str)
 
         # Check for key sections
-        self.assertIn("# 📰 DevOps Feed Hub Summary", result)
+        self.assertIn(REPO_SITE_METADATA["summary_markdown_title"], result)
         self.assertIn("## 📊 Summary", result)
         self.assertIn("## ✅ Successful Feeds", result)
         self.assertIn("## ❌ Failed Feeds", result)
@@ -168,7 +169,7 @@ class TestGenerateSummary(unittest.TestCase):
         result = generate_markdown_summary(self.empty_data)
 
         # Should still have basic structure
-        self.assertIn("# 📰 DevOps Feed Hub Summary", result)
+        self.assertIn(REPO_SITE_METADATA["summary_markdown_title"], result)
         self.assertIn("## 📊 Summary", result)
 
         # Should indicate no articles
@@ -193,7 +194,7 @@ class TestGenerateSummary(unittest.TestCase):
         self.assertIn("</html>", result)
 
         # Check for key sections - no emojis in new design
-        self.assertIn("DevOps Feed Hub", result)
+        self.assertIn(REPO_SITE_METADATA["site_name"], result)
         # The new design doesn't have h1/h2 headers with emojis on the main page
         # Instead it has feed sections with h3 headers
 
@@ -251,7 +252,7 @@ class TestGenerateSummary(unittest.TestCase):
 
         # Should still have basic structure
         self.assertIn("<!doctype html>", result)
-        self.assertIn("DevOps Feed Hub", result)
+        self.assertIn(REPO_SITE_METADATA["site_name"], result)
 
         # Should indicate no articles (shown in article count badge)
         self.assertIn("0 articles", result)
@@ -295,11 +296,11 @@ class TestGenerateSummary(unittest.TestCase):
 
         self.assertIn("<title>Platform Feed Hub</title>", result)
         self.assertIn(
-            DEFAULT_SITE_METADATA["site_description"],
+            REPO_SITE_METADATA["site_description"],
             result,
         )
         self.assertIn(
-            'title="DevOps Feed Hub - All Articles"',
+            f'title="{REPO_SITE_METADATA["rss_title"]}"',
             result,
         )
 
@@ -387,14 +388,16 @@ class TestGenerateSummary(unittest.TestCase):
             mode="w", delete=False, suffix=".html", encoding="utf-8"
         ) as f:
             custom_template = f.name
-            f.write("""<!doctype html>
+            f.write(
+                """<!doctype html>
 <html>
 <head><title>Custom Template</title></head>
 <body>
 <!-- CONTENT_PLACEHOLDER -->
 <footer>Updated: <!-- TIMESTAMP_PLACEHOLDER --></footer>
 </body>
-</html>""")
+</html>"""
+            )
 
         try:
             result = generate_html_page(self.sample_data, custom_template)
@@ -425,14 +428,16 @@ class TestGenerateSummary(unittest.TestCase):
             mode="w", delete=False, suffix=".html", encoding="utf-8"
         ) as f:
             utf8_template = f.name
-            f.write("""<!doctype html>
+            f.write(
+                """<!doctype html>
 <html>
 <head><title>Test 🌙☀️</title></head>
 <body>
 <!-- CONTENT_PLACEHOLDER -->
 <footer><!-- TIMESTAMP_PLACEHOLDER --></footer>
 </body>
-</html>""")
+</html>"""
+            )
 
         try:
             result = generate_html_page(self.sample_data, utf8_template)
@@ -723,7 +728,9 @@ class TestMultiPageGeneration(unittest.TestCase):
         self.assertIn('href="feed-test-feed-1.html"', result)
 
         # Check page title is updated
-        self.assertIn("<title>Test Feed 1 - DevOps Feed Hub</title>", result)
+        self.assertIn(
+            f"<title>Test Feed 1 - {REPO_SITE_METADATA['site_name']}</title>", result
+        )
 
         custom_result = generate_html_page(
             self.sample_data,
@@ -911,14 +918,20 @@ class TestMultiPageGeneration(unittest.TestCase):
             self.assertIn("Failed Feed", summary_content)
             self.assertIn("https://example.com/failed", summary_content)
             # Check page title
-            self.assertIn("<title>Summary - DevOps Feed Hub</title>", summary_content)
+            self.assertIn(
+                f"<title>Summary - {REPO_SITE_METADATA['site_name']}</title>",
+                summary_content,
+            )
 
             settings_path = os.path.join(tmpdir, "settings.html")
             with open(settings_path, "r", encoding="utf-8") as file:
                 settings_content = file.read()
 
             self.assertNotIn("SETTINGS_TITLE_PLACEHOLDER", settings_content)
-            self.assertIn("<title>Settings - DevOps Feed Hub</title>", settings_content)
+            self.assertIn(
+                f"<title>Settings - {REPO_SITE_METADATA['site_name']}</title>",
+                settings_content,
+            )
 
     def test_generate_all_pages_without_failed_feeds(self):
         """Test generate_all_pages without failed feeds page"""

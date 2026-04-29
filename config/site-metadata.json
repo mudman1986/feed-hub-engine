@@ -1,8 +1,8 @@
 {
-  "site_name": "DevOps Feed Hub",
-  "site_description": "Centralized RSS feed aggregator for DevOps and tech news",
-  "header_title": "DevOps Feed Hub",
-  "rss_title": "DevOps Feed Hub - All Articles",
-  "rss_description": "Aggregated DevOps, cloud, and technology news from multiple sources",
-  "rss_generator": "DevOps Feed Hub RSS Generator"
+  "site_name": "Feed Hub Engine Demo site",
+  "site_description": "Demo site for the Feed Hub Engine",
+  "header_title": "Feed Hub Engine Demo",
+  "rss_title": "Feed Hub Engine Demo - All Articles",
+  "rss_description": "Demo site for the Feed Hub Engine",
+  "rss_generator": "Feed Hub Engine Demo RSS Generator"
 }

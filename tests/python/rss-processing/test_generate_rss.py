@@ -20,7 +20,10 @@ from generate_rss import (  # noqa: E402 # pylint: disable=wrong-import-position
 )
 from utils import (  # noqa: E402 # pylint: disable=wrong-import-position
     generate_feed_slug,
+    load_site_metadata,
 )
+
+REPO_SITE_METADATA = load_site_metadata()
 
 
 def test_parse_iso_timestamp():
@@ -213,9 +216,9 @@ def test_generate_master_feed_merges_partial_site_metadata():
     )
 
     channel = ET.fromstring(rss_xml).find("channel")
-    assert channel.find("title").text == "DevOps Feed Hub - All Articles"
+    assert channel.find("title").text == REPO_SITE_METADATA["rss_title"]
     assert channel.find("description").text == "Platform engineering articles"
-    assert channel.find("generator").text == "DevOps Feed Hub RSS Generator"
+    assert channel.find("generator").text == REPO_SITE_METADATA["rss_generator"]
 
 
 def test_generate_individual_feed():
@@ -289,7 +292,7 @@ def test_generate_individual_feed_merges_partial_site_metadata():
     channel = ET.fromstring(rss_xml).find("channel")
     assert channel.find("title").text == "Platform Feed Hub - Test Feed"
     assert channel.find("description").text == "Articles from Test Feed"
-    assert channel.find("generator").text == "DevOps Feed Hub RSS Generator"
+    assert channel.find("generator").text == REPO_SITE_METADATA["rss_generator"]
 
 
 def test_generate_all_feeds():

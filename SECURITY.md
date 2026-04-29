@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We take security seriously and aim to promptly address any vulnerabilities. The table below indicates which versions of **DevOps Feed Hub** are currently supported with security updates:
+We take security seriously and aim to promptly address any vulnerabilities. The table below indicates which versions of **Feed Hub Engine** are currently supported with security updates:
 
 | Version           | Supported |
 | ----------------- | --------- |
@@ -32,4 +32,4 @@ We aim to respond to all security reports within 72 hours. After the initial rep
 - Do not commit secret credentials to the repository.
 - Regularly audit dependencies and apply updates.
 
-Thank you for helping keep DevOps Feed Hub and its users safe!
+Thank you for helping keep Feed Hub Engine and its users safe!
