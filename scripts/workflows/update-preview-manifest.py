@@ -46,6 +46,9 @@ def update_manifest(
         manifest = {"previews": []}
 
     previews = manifest.get("previews", [])
+    if not isinstance(previews, list):
+        previews = []
+    previews = [preview for preview in previews if isinstance(preview, dict)]
 
     if active_branches is not None:
         previews = [p for p in previews if p.get("branch") in active_branches]
