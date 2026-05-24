@@ -237,6 +237,12 @@
                   <option value="monochrome">Beta - Monochrome</option>
                   <option value="minimalist">Beta - Minimalist</option>
                   <option value="terminal">Beta - Terminal</option>
+                  <option value="magazine">
+                    Beta - Magazine (Redesign 1: Premium Editorial)
+                  </option>
+                  <option value="newspaper">
+                    Beta - Newspaper (Redesign 2: Blank-Slate Chronicle)
+                  </option>
                   <option value="retro">Beta - Retro</option>
                   <option value="futuristic">Beta - Futuristic</option>
                   <option value="compact">Beta - Compact</option>
@@ -455,6 +461,8 @@
           "dracula",
           "minimalist",
           "terminal",
+          "magazine",
+          "newspaper",
           "retro",
           "futuristic",
           "compact",
@@ -585,7 +593,7 @@
          */
         function getNaturalThemeMode(baseTheme) {
           // Arctic-blue is naturally light
-          if (baseTheme === "arctic-blue") {
+          if (baseTheme === "arctic-blue" || baseTheme === "newspaper") {
             return "light";
           }
           // All other themes are naturally dark
