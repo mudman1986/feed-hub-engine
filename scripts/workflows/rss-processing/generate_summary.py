@@ -414,7 +414,11 @@ def generate_feed_articles_content(feeds_to_display: Dict[str, Any]) -> str:
                 else:
                     article_rank = "compact"
                 content += f"""
-                <li class="article-item article-item--{article_rank}" data-article-rank="{article_rank}" data-published="{iso_timestamp}">
+                <li
+                    class="article-item article-item--{article_rank}"
+                    data-article-rank="{article_rank}"
+                    data-published="{iso_timestamp}"
+                >
                     <a href="{escaped_link}" class="article-title"
                        target="_blank" rel="noopener noreferrer">
                         {escaped_title}

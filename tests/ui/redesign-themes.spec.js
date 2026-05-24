@@ -69,7 +69,10 @@ test.describe("Redesign theme layouts", () => {
       return;
     }
 
-    await expect(page.locator("html")).toHaveAttribute("data-theme", /newspaper/);
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-theme",
+      /newspaper/,
+    );
 
     const sidebarBox = await page.locator("#sidebar").boundingBox();
     const mainBox = await page.locator("#main-content").boundingBox();
@@ -80,7 +83,9 @@ test.describe("Redesign theme layouts", () => {
 
     const firstSection = page.locator(".feed-section").first();
     const headingBox = await firstSection.locator("h2").boundingBox();
-    const articleListBox = await firstSection.locator(".article-list").boundingBox();
+    const articleListBox = await firstSection
+      .locator(".article-list")
+      .boundingBox();
 
     expect(headingBox).not.toBeNull();
     expect(articleListBox).not.toBeNull();
