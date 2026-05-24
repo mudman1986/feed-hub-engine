@@ -3204,8 +3204,10 @@ h3 {
 
 :is([data-theme="newspaper"], [data-theme="newspaper-light"]) .theme-toggle,
 :is([data-theme="newspaper"], [data-theme="newspaper-light"]) .settings-button,
-:is([data-theme="newspaper"], [data-theme="newspaper-light"]) .reset-read-button,
-:is([data-theme="newspaper"], [data-theme="newspaper-light"]) .timeframe-select {
+:is([data-theme="newspaper"], [data-theme="newspaper-light"])
+  .reset-read-button,
+:is([data-theme="newspaper"], [data-theme="newspaper-light"])
+  .timeframe-select {
   padding: 0.5rem 0.2rem;
   border: none;
   border-bottom: 1px solid var(--border-primary);
@@ -3218,16 +3220,21 @@ h3 {
   text-transform: uppercase;
 }
 
-:is([data-theme="newspaper"], [data-theme="newspaper-light"]) .theme-toggle:hover,
-:is([data-theme="newspaper"], [data-theme="newspaper-light"]) .settings-button:hover,
-:is([data-theme="newspaper"], [data-theme="newspaper-light"]) .reset-read-button:hover,
-:is([data-theme="newspaper"], [data-theme="newspaper-light"]) .timeframe-select:hover {
+:is([data-theme="newspaper"], [data-theme="newspaper-light"])
+  .theme-toggle:hover,
+:is([data-theme="newspaper"], [data-theme="newspaper-light"])
+  .settings-button:hover,
+:is([data-theme="newspaper"], [data-theme="newspaper-light"])
+  .reset-read-button:hover,
+:is([data-theme="newspaper"], [data-theme="newspaper-light"])
+  .timeframe-select:hover {
   background: transparent;
   border-color: var(--text-primary);
   transform: none;
 }
 
-:is([data-theme="newspaper"], [data-theme="newspaper-light"]) .timeframe-select {
+:is([data-theme="newspaper"], [data-theme="newspaper-light"])
+  .timeframe-select {
   padding-right: 1.75rem;
   background-position: right 0.15rem center;
 }
