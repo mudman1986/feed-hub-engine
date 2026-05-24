@@ -93,6 +93,42 @@ class TestUpdateManifestFreshStart:
         )
         assert len(written["previews"]) == 1
 
+    def test_non_list_previews_falls_back_to_empty_list(self, tmp_path):
+        _, written = _run(
+            '{"previews": {}}',
+            "feature/foo",
+            "feature--foo",
+            "https://example.com/preview/feature--foo",
+            str(tmp_path),
+        )
+        assert [preview["slug"] for preview in written["previews"]] == ["feature--foo"]
+
+    def test_non_object_preview_entries_are_ignored(self, tmp_path):
+        existing_manifest = json.dumps(
+            {
+                "previews": [
+                    "bad",
+                    {
+                        "slug": "existing",
+                        "branch": "feature/existing",
+                        "url": "https://example.com/preview/existing/",
+                        "updated_at": "2026-01-01T00:00:00Z",
+                    },
+                ]
+            }
+        )
+        _, written = _run(
+            existing_manifest,
+            "feature/foo",
+            "feature--foo",
+            "https://example.com/preview/feature--foo",
+            str(tmp_path),
+        )
+        assert [preview["slug"] for preview in written["previews"]] == [
+            "feature--foo",
+            "existing",
+        ]
+
 
 class TestUpdateManifestUpdate:
     """Tests for updating and deduplicating preview entries."""
