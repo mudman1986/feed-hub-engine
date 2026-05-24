@@ -402,13 +402,19 @@ def generate_feed_articles_content(feeds_to_display: Dict[str, Any]) -> str:
             content += """
             <ul class="article-list">
 """
-            for article in feed_data["articles"]:
+            for index, article in enumerate(feed_data["articles"]):
                 escaped_title = html_escape(article["title"])
                 escaped_link = html_escape(article["link"])
                 formatted_date = format_publish_date(article["published"])
                 iso_timestamp = html_escape(article["published"])
+                if index == 0:
+                    article_rank = "lead"
+                elif index < 3:
+                    article_rank = "feature"
+                else:
+                    article_rank = "compact"
                 content += f"""
-                <li class="article-item" data-published="{iso_timestamp}">
+                <li class="article-item article-item--{article_rank}" data-article-rank="{article_rank}" data-published="{iso_timestamp}">
                     <a href="{escaped_link}" class="article-title"
                        target="_blank" rel="noopener noreferrer">
                         {escaped_title}

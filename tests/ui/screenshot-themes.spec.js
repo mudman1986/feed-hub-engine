@@ -15,6 +15,8 @@ const themes = [
   // Themed styles (Beta themes)
   { name: "minimalist", category: "theme" },
   { name: "terminal", category: "theme" },
+  { name: "magazine", category: "theme" },
+  { name: "newspaper", category: "theme" },
   { name: "retro", category: "theme" },
   { name: "futuristic", category: "theme" },
   { name: "compact", category: "theme" },

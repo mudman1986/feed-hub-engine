@@ -386,13 +386,15 @@ test.describe("Experimental Themes - Consolidated", () => {
     const themedStyles = [
       "minimalist",
       "terminal",
+      "magazine",
+      "newspaper",
       "retro",
       "futuristic",
       "compact",
     ];
 
-    for (const theme of themedStyles.slice(0, 3)) {
-      // Test first 3 to save time
+    for (const theme of themedStyles.slice(0, 5)) {
+      // Test first 5 to cover the redesign themes
       test(`should apply ${theme} themed style`, async ({ page }) => {
         await page.goto("/settings.html");
         await page.waitForLoadState("load");
@@ -402,7 +404,8 @@ test.describe("Experimental Themes - Consolidated", () => {
         const dataTheme = await page.evaluate(() =>
           document.documentElement.getAttribute("data-theme"),
         );
-        expect(dataTheme).toBe(theme);
+        const expectedTheme = theme === "newspaper" ? "newspaper-light" : theme;
+        expect(dataTheme).toBe(expectedTheme);
       });
     }
   });
