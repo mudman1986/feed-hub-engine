@@ -5,6 +5,7 @@ Tests the summary generation functionality for RSS feed collection
 """
 
 # pylint: disable=wrong-import-position,too-many-lines
+import copy
 import json
 import os
 import tempfile
@@ -388,14 +389,16 @@ class TestGenerateSummary(unittest.TestCase):
             mode="w", delete=False, suffix=".html", encoding="utf-8"
         ) as f:
             custom_template = f.name
-            f.write("""<!doctype html>
+            f.write(
+                """<!doctype html>
 <html>
 <head><title>Custom Template</title></head>
 <body>
 <!-- CONTENT_PLACEHOLDER -->
 <footer>Updated: <!-- TIMESTAMP_PLACEHOLDER --></footer>
 </body>
-</html>""")
+</html>"""
+            )
 
         try:
             result = generate_html_page(self.sample_data, custom_template)
@@ -426,14 +429,16 @@ class TestGenerateSummary(unittest.TestCase):
             mode="w", delete=False, suffix=".html", encoding="utf-8"
         ) as f:
             utf8_template = f.name
-            f.write("""<!doctype html>
+            f.write(
+                """<!doctype html>
 <html>
 <head><title>Test 🌙☀️</title></head>
 <body>
 <!-- CONTENT_PLACEHOLDER -->
 <footer><!-- TIMESTAMP_PLACEHOLDER --></footer>
 </body>
-</html>""")
+</html>"""
+            )
 
         try:
             result = generate_html_page(self.sample_data, utf8_template)
@@ -817,12 +822,47 @@ class TestMultiPageGeneration(unittest.TestCase):
         result = generate_html_page(self.sample_data, current_feed="Test Feed 1")
 
         # Count article items with data-published attribute - should only have 2 for Test Feed 1
-        article_count = result.count('class="article-item" data-published=')
+        article_count = result.count('class="article-item article-item--')
         self.assertEqual(article_count, 2)
 
         # Verify correct articles are shown
         self.assertIn("Article 1", result)
         self.assertIn("Article 2", result)
+
+    def test_feed_articles_include_editorial_rank_classes(self):
+        """Test that generated feed articles include lead/feature/compact rank hooks"""
+        ranked_data = copy.deepcopy(self.sample_data)
+        ranked_data["summary"]["total_articles"] = 4
+        ranked_data["feeds"]["Test Feed 1"]["count"] = 4
+        ranked_data["feeds"]["Test Feed 1"]["articles"] = [
+            {
+                "title": "Lead Story",
+                "link": "https://example.com/lead",
+                "published": "2024-01-15T09:00:00Z",
+            },
+            {
+                "title": "Feature Story",
+                "link": "https://example.com/feature",
+                "published": "2024-01-15T08:00:00Z",
+            },
+            {
+                "title": "Second Feature Story",
+                "link": "https://example.com/feature-2",
+                "published": "2024-01-15T07:30:00Z",
+            },
+            {
+                "title": "Compact Story",
+                "link": "https://example.com/compact",
+                "published": "2024-01-15T07:00:00Z",
+            },
+        ]
+
+        result = generate_html_page(ranked_data, current_feed="Test Feed 1")
+
+        self.assertIn('article-item article-item--lead"', result)
+        self.assertIn('data-article-rank="lead"', result)
+        self.assertEqual(result.count('article-item article-item--feature"'), 2)
+        self.assertIn('article-item article-item--compact"', result)
 
     def test_feed_page_title_appears_only_once(self):
         """Test that individual feed pages show the feed title exactly once (not twice)"""

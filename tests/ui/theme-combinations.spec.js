@@ -22,6 +22,8 @@ test.describe("Theme Combinations - All Settings", () => {
     "monochrome",
     "minimalist",
     "terminal",
+    "magazine",
+    "newspaper",
     "retro",
     "futuristic",
     "compact",
@@ -94,7 +96,7 @@ test.describe("Theme Combinations - All Settings", () => {
   });
 
   test.describe("View Mode with Theme Combinations", () => {
-    const sampleThemes = ["default", "classic", "purple-haze", "terminal"]; // Test subset
+    const sampleThemes = ["default", "classic", "magazine", "newspaper"]; // Test subset
     const sampleViewModes = ["card", "center-stage", "masonry-grid"]; // Test subset
 
     for (const theme of sampleThemes) {
