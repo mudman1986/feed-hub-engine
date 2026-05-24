@@ -45,9 +45,15 @@ test.describe("Experimental Themes - Consolidated", () => {
       const oceanDeepOption = themeSelect.locator('option[value="ocean-deep"]');
       await expect(purpleHazeOption).toBeAttached();
       await expect(oceanDeepOption).toBeAttached();
+      await expect(
+        themeSelect.locator('option[value="magazine"]'),
+      ).toBeAttached();
+      await expect(
+        themeSelect.locator('option[value="newspaper"]'),
+      ).toBeAttached();
     });
 
-    test("should have 12 theme options (Dracula default + Classic + 10 beta themes)", async ({
+    test("should have 14 theme options (Dracula default + Classic + 12 beta themes)", async ({
       page,
     }) => {
       await page.goto("/settings.html");
@@ -56,9 +62,9 @@ test.describe("Experimental Themes - Consolidated", () => {
       const themeSelect = page.locator("#theme-setting");
       const options = themeSelect.locator("option");
 
-      // Count options: 1 default Dracula + 1 Classic + 10 beta themes = 12
+      // Count options: 1 default Dracula + 1 Classic + 12 beta themes = 14
       const count = await options.count();
-      expect(count).toBe(12);
+      expect(count).toBe(14);
     });
 
     test("should place the Dracula default and Classic options above beta themes", async ({
