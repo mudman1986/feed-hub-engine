@@ -49,10 +49,10 @@ jobs:
 
     steps:
       - name: Checkout caller repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       - name: Checkout feed hub engine repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
         with:
           repository: ${{ inputs.engine-repository }}
           ref: ${{ inputs.engine-ref }}
