@@ -65,7 +65,7 @@ When a newer release is available:
 
 1. Review the upstream release notes.
 2. Update `.github/workflows/publish.yml` so both the `uses:` reference and the
-   `engine-ref` input point to the new stable tag (for example `v2.0.0`).
+   `engine-ref` input point to the new stable tag (for example `v2.0.1`).
 3. Commit and push the workflow change.
 
 ## Notes
