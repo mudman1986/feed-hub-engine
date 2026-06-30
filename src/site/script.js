@@ -43,6 +43,8 @@ const EXPERIMENTAL_BASE_THEMES = [
   "dracula",
   "minimalist",
   "terminal",
+  "magazine",
+  "newspaper",
   "retro",
   "futuristic",
   "compact",
