@@ -4,7 +4,7 @@ Copy the contents of this folder into a new repository to bootstrap a
 generic feed hub site that uses the shared Pages workflow from:
 
 ```text
-mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v2.0.0
+mudman1986/feed-hub-engine/.github/workflows/publish-pages.yml@v2.0.1
 ```
 
 ## Included Files
