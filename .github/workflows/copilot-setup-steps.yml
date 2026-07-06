@@ -28,7 +28,7 @@ jobs:
           git fetch origin main:main || echo "Main branch already exists locally"
 
       - name: Set up Python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@v6.3.0
         with:
           python-version: "3.x"
           cache: "pip"
@@ -52,7 +52,7 @@ jobs:
           echo "version=$(node -p 'require(\"./package.json\").devDependencies[\"@playwright/test\"]')" >> "$GITHUB_OUTPUT"
 
       - name: Cache Playwright browsers
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae #v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
@@ -63,7 +63,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Cache Docker images
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae #v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
         with:
           path: /tmp/docker-cache
           key: docker-super-linter-${{ runner.os }}-v8.5.0
