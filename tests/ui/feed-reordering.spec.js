@@ -58,6 +58,31 @@ function isTouchProject(projectName) {
 }
 
 test.describe("Feed reordering", () => {
+  test("saved partial feed order keeps nav and main sections synchronized when new feeds exist", async ({
+    page,
+  }) => {
+    await clearSiteStorage(page);
+    await page.evaluate(() => {
+      window.saveFeedOrder(["Test Feed C", "AWS DevOps Blog"]);
+    });
+    await page.reload();
+
+    const expectedOrder = [
+      "Test Feed C",
+      "AWS DevOps Blog",
+      "Atlassian DevOps",
+      "Docker Blog",
+      "GitHub Blog",
+      "Opensource.com",
+      "Terraform weekly",
+      "Test Feed A",
+      "Test Feed B",
+    ];
+
+    await expect.poll(() => getNavFeedOrder(page)).toEqual(expectedOrder);
+    await expect.poll(() => getMainFeedOrder(page)).toEqual(expectedOrder);
+  });
+
   test("nav drag-and-drop persists and updates settings automatically", async ({
     page,
   }) => {
@@ -144,11 +169,13 @@ test.describe("Feed reordering", () => {
           },
         );
     } else {
-      await settingsPage.evaluate((feedOrder) => {
-        window.saveFeedOrder(feedOrder);
-      }, expectedOrder);
-      await settingsPage.reload();
-      await openFeedSelection(settingsPage);
+      const moveUpButton = settingsPage.getByRole("button", {
+        name: "Move Test Feed B up",
+      });
+
+      for (let i = 0; i < 7; i += 1) {
+        await moveUpButton.click();
+      }
     }
 
     await expect

@@ -368,6 +368,55 @@ function getNormalizedFeedOrder(
   return normalizedFeedOrder;
 }
 
+function decodeFeedListData(value) {
+  return value
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#x27;", "'")
+    .replaceAll("&#x2F;", "/")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&");
+}
+
+function getFeedListData() {
+  const feedListElement = document.getElementById("feed-list-data");
+  if (!feedListElement) {
+    return [];
+  }
+
+  try {
+    const rawFeedList = feedListElement.textContent?.trim() || "[]";
+    const parsedFeedList = JSON.parse(decodeFeedListData(rawFeedList));
+    return Array.isArray(parsedFeedList)
+      ? parsedFeedList.filter(
+          (feedName) => typeof feedName === "string" && feedName.trim() !== "",
+        )
+      : [];
+  } catch (e) {
+    console.warn("Unable to parse feed list data:", e);
+    return [];
+  }
+}
+
+function getResolvedFeedOrder(visibleFeedNames = []) {
+  const navFeedNames = getCurrentNavFeedOrder();
+  const canonicalFeedNames = getFeedListData();
+  const availableFeedNames =
+    navFeedNames.length > 0
+      ? navFeedNames
+      : canonicalFeedNames.length > 0
+        ? canonicalFeedNames
+        : visibleFeedNames;
+  const visibleFeedNameSet = new Set(
+    Array.isArray(visibleFeedNames) ? visibleFeedNames : [],
+  );
+
+  return getNormalizedFeedOrder(availableFeedNames).filter(
+    (feedName) =>
+      visibleFeedNameSet.size === 0 || visibleFeedNameSet.has(feedName),
+  );
+}
+
 function hasSavedFeedOrder() {
   return getStoredFeedOrder().length > 0;
 }
@@ -384,7 +433,7 @@ function orderFeedDataBySavedOrder(feedsData) {
   }
 
   const feedOrderIndex = new Map(
-    getNormalizedFeedOrder(feedsData.map((feed) => feed.name)).map(
+    getResolvedFeedOrder(feedsData.map((feed) => feed.name)).map(
       (feedName, index) => [feedName, index],
     ),
   );
@@ -1036,6 +1085,10 @@ function getReorderableNavLinks() {
   );
 }
 
+function getCurrentNavFeedOrder() {
+  return getReorderableNavLinks().map((link) => getFeedNameFromNavLink(link));
+}
+
 function applySavedFeedOrderToNav() {
   if (!hasSavedFeedOrder()) {
     return;
@@ -1054,7 +1107,7 @@ function applySavedFeedOrderToNav() {
     (link) => getFeedNameFromNavLink(link) === "Summary",
   );
 
-  getNormalizedFeedOrder(
+  getResolvedFeedOrder(
     feedLinks.map((link) => getFeedNameFromNavLink(link)),
   ).forEach((feedName) => {
     const link = linkByFeedName.get(feedName);
@@ -1083,8 +1136,11 @@ function applySavedFeedOrderToSections() {
     feedSections.map((section) => [extractFeedName(section), section]),
   );
   const footer = parent.querySelector(".footer");
-  const orderedFeedSections = getNormalizedFeedOrder(
-    feedSections.map((section) => extractFeedName(section)),
+  const navFeedOrder = getCurrentNavFeedOrder();
+  const orderedFeedSections = (
+    navFeedOrder.length > 0
+      ? navFeedOrder
+      : getResolvedFeedOrder(feedSections.map((section) => extractFeedName(section)))
   )
     .map((feedName) => feedSectionByName.get(feedName))
     .filter(Boolean)
@@ -1196,10 +1252,14 @@ function updateFeedCounts() {
 
   // Reorder feeds by unread status
   if (feedSections.length > 0 && feedSections[0].parentNode) {
-    const parent = feedSections[0].parentNode;
-    const footer = parent.querySelector(".footer");
-    const orderedFeeds = orderFeedsByUnreadStatus(feedsData);
-    reorderDOMElements(orderedFeeds, parent, footer);
+    if (hasSavedFeedOrder()) {
+      applySavedFeedOrderToMainPage();
+    } else {
+      const parent = feedSections[0].parentNode;
+      const footer = parent.querySelector(".footer");
+      const orderedFeeds = orderFeedsByUnreadStatus(feedsData);
+      reorderDOMElements(orderedFeeds, parent, footer);
+    }
   }
 }
 
@@ -1437,6 +1497,11 @@ function reorderArticlesInFeed(articleList, articles) {
 function reorderFeedsByUnreadStatus(feedsData) {
   if (feedsData.length === 0) return;
 
+  if (hasSavedFeedOrder()) {
+    applySavedFeedOrderToMainPage();
+    return;
+  }
+
   const feedSections = document.querySelectorAll(".feed-section");
   if (feedSections.length === 0) return;
 
@@ -1555,6 +1620,43 @@ function applyFeedFilter() {
 
 let suppressNavFeedClickUntil = 0;
 
+function saveCurrentNavFeedOrder(movedFeedName = "") {
+  const orderedFeedNames = saveFeedOrder(
+    getReorderableNavLinks().map((navLink) => getFeedNameFromNavLink(navLink)),
+  );
+  applySavedFeedOrderToMainPage();
+
+  const updatedPosition = orderedFeedNames.indexOf(movedFeedName);
+  if (movedFeedName && updatedPosition !== -1) {
+    announceToScreenReader(
+      `${movedFeedName} moved to position ${updatedPosition + 1}`,
+    );
+  }
+
+  showToast("Feed order saved", "success");
+  suppressNavFeedClickUntil = Date.now() + 250;
+}
+
+function moveNavFeedLink(link, direction) {
+  const feedNav = document.querySelector(".feed-nav");
+  const feedLinks = getReorderableNavLinks();
+  const currentIndex = feedLinks.indexOf(link);
+
+  if (!feedNav || currentIndex === -1) {
+    return;
+  }
+
+  if (direction === "up" && currentIndex > 0) {
+    feedNav.insertBefore(link, feedLinks[currentIndex - 1]);
+    saveCurrentNavFeedOrder(getFeedNameFromNavLink(link));
+  }
+
+  if (direction === "down" && currentIndex < feedLinks.length - 1) {
+    feedNav.insertBefore(feedLinks[currentIndex + 1], link);
+    saveCurrentNavFeedOrder(getFeedNameFromNavLink(link));
+  }
+}
+
 function initializeNavFeedReordering() {
   const feedNav = document.querySelector(".feed-nav");
   const feedLinks = getReorderableNavLinks();
@@ -1620,21 +1722,7 @@ function initializeNavFeedReordering() {
       e.preventDefault();
 
       if (movedLink) {
-        const orderedFeedNames = saveFeedOrder(
-          getReorderableNavLinks().map((navLink) =>
-            getFeedNameFromNavLink(navLink),
-          ),
-        );
-        applySavedFeedOrderToMainPage();
-
-        const updatedPosition = orderedFeedNames.indexOf(feedName);
-        if (updatedPosition !== -1) {
-          announceToScreenReader(
-            `${feedName} moved to position ${updatedPosition + 1}`,
-          );
-        }
-        showToast("Feed order saved", "success");
-        suppressNavFeedClickUntil = Date.now() + 250;
+        saveCurrentNavFeedOrder(feedName);
       }
     });
 
@@ -1648,6 +1736,22 @@ function initializeNavFeedReordering() {
       if (Date.now() < suppressNavFeedClickUntil) {
         e.preventDefault();
         e.stopPropagation();
+      }
+    });
+
+    link.addEventListener("keydown", (e) => {
+      if (!e.altKey) {
+        return;
+      }
+
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        moveNavFeedLink(link, "up");
+      }
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        moveNavFeedLink(link, "down");
       }
     });
   });

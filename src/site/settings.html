@@ -294,7 +294,8 @@
           <h2 class="settings-section-title">Feed Selection</h2>
           <div class="settings-group">
             <p class="settings-group-description">
-              Drag and drop feeds to set their order. Disabled feeds will be
+              Drag and drop feeds to set their order, or use the move buttons
+              for keyboard and touch-friendly reordering. Disabled feeds will be
               hidden from the navigation and main view.
             </p>
             <div class="settings-item">
@@ -917,6 +918,7 @@
             const item = document.createElement("div");
             item.className = "feed-checkbox-item";
             item.setAttribute("data-feed-name", feedName);
+            item.tabIndex = 0;
 
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
@@ -938,10 +940,37 @@
             reorderHint.className = "feed-order-hint";
             reorderHint.textContent = "Drag to reorder";
 
+            const reorderButtons = document.createElement("div");
+            reorderButtons.className = "feed-order-buttons";
+
+            const moveUpButton = document.createElement("button");
+            moveUpButton.type = "button";
+            moveUpButton.className = "feed-order-button";
+            moveUpButton.setAttribute("data-move-direction", "up");
+            moveUpButton.setAttribute("aria-label", `Move ${feedName} up`);
+            moveUpButton.textContent = "↑";
+            moveUpButton.addEventListener("click", () => {
+              moveFeedItem(container, item, "up");
+            });
+
+            const moveDownButton = document.createElement("button");
+            moveDownButton.type = "button";
+            moveDownButton.className = "feed-order-button";
+            moveDownButton.setAttribute("data-move-direction", "down");
+            moveDownButton.setAttribute("aria-label", `Move ${feedName} down`);
+            moveDownButton.textContent = "↓";
+            moveDownButton.addEventListener("click", () => {
+              moveFeedItem(container, item, "down");
+            });
+
+            reorderButtons.appendChild(moveUpButton);
+            reorderButtons.appendChild(moveDownButton);
+
             item.appendChild(position);
             item.appendChild(checkbox);
             item.appendChild(label);
             item.appendChild(reorderHint);
+            item.appendChild(reorderButtons);
             container.appendChild(item);
           });
 
@@ -1184,6 +1213,12 @@
           items.forEach((item, index) => {
             const position = item.querySelector(".feed-order-position");
             const feedName = item.getAttribute("data-feed-name") || "";
+            const moveUpButton = item.querySelector(
+              '.feed-order-button[data-move-direction="up"]',
+            );
+            const moveDownButton = item.querySelector(
+              '.feed-order-button[data-move-direction="down"]',
+            );
             if (position) {
               position.textContent = `${index + 1}`;
             }
@@ -1191,7 +1226,35 @@
               "aria-label",
               `${feedName}, position ${index + 1}. Drag to reorder this feed.`,
             );
+            if (moveUpButton) {
+              moveUpButton.disabled = index === 0;
+            }
+            if (moveDownButton) {
+              moveDownButton.disabled = index === items.length - 1;
+            }
           });
+        }
+
+        function moveFeedItem(container, item, direction) {
+          const sibling =
+            direction === "up"
+              ? item.previousElementSibling
+              : item.nextElementSibling;
+
+          if (!sibling) {
+            return;
+          }
+
+          if (direction === "up") {
+            container.insertBefore(item, sibling);
+          } else {
+            container.insertBefore(sibling, item);
+          }
+
+          saveFeedOrderSettings(
+            container,
+            item.getAttribute("data-feed-name") || "",
+          );
         }
 
         function saveFeedOrderSettings(container, movedFeedName = "") {
@@ -1295,6 +1358,22 @@
               draggedItem = null;
               movedItem = false;
               updateFeedOrderLabels(container);
+            });
+
+            item.addEventListener("keydown", (e) => {
+              if (!e.altKey) {
+                return;
+              }
+
+              if (e.key === "ArrowUp") {
+                e.preventDefault();
+                moveFeedItem(container, item, "up");
+              }
+
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                moveFeedItem(container, item, "down");
+              }
             });
           });
         }
