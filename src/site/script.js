@@ -1140,7 +1140,9 @@ function applySavedFeedOrderToSections() {
   const orderedFeedSections = (
     navFeedOrder.length > 0
       ? navFeedOrder
-      : getResolvedFeedOrder(feedSections.map((section) => extractFeedName(section)))
+      : getResolvedFeedOrder(
+          feedSections.map((section) => extractFeedName(section)),
+        )
   )
     .map((feedName) => feedSectionByName.get(feedName))
     .filter(Boolean)
