@@ -27,6 +27,7 @@ const SITE_SCOPED_STORAGE_KEYS = [
   "enabledFeeds",
   "experimentalTheme",
   "experimentalViewMode",
+  "feedOrder",
   "theme",
   "themeMode",
   "timeframe",
@@ -319,6 +320,77 @@ function removeLocalStorage(key) {
   } catch (e) {
     console.warn(`Unable to remove from localStorage for key "${key}":`, e);
   }
+}
+
+function getStoredFeedOrder() {
+  const storedFeedOrder = getLocalStorageJSON("feedOrder", []);
+  if (!Array.isArray(storedFeedOrder)) {
+    return [];
+  }
+
+  return storedFeedOrder.filter(
+    (feedName) => typeof feedName === "string" && feedName.trim() !== "",
+  );
+}
+
+function getNormalizedFeedOrder(feedNames, storedFeedOrder = getStoredFeedOrder()) {
+  const availableFeedNames = Array.isArray(feedNames)
+    ? feedNames.filter(
+        (feedName, index, names) =>
+          typeof feedName === "string" &&
+          feedName.trim() !== "" &&
+          names.indexOf(feedName) === index,
+      )
+    : [];
+  const availableFeedNameSet = new Set(availableFeedNames);
+  const normalizedFeedOrder = [];
+  const seenFeedNames = new Set();
+
+  if (Array.isArray(storedFeedOrder)) {
+    storedFeedOrder.forEach((feedName) => {
+      if (availableFeedNameSet.has(feedName) && !seenFeedNames.has(feedName)) {
+        normalizedFeedOrder.push(feedName);
+        seenFeedNames.add(feedName);
+      }
+    });
+  }
+
+  availableFeedNames.forEach((feedName) => {
+    if (!seenFeedNames.has(feedName)) {
+      normalizedFeedOrder.push(feedName);
+      seenFeedNames.add(feedName);
+    }
+  });
+
+  return normalizedFeedOrder;
+}
+
+function hasSavedFeedOrder() {
+  return getStoredFeedOrder().length > 0;
+}
+
+function saveFeedOrder(feedNames) {
+  const normalizedFeedOrder = getNormalizedFeedOrder(feedNames, feedNames);
+  setLocalStorageJSON("feedOrder", normalizedFeedOrder);
+  return normalizedFeedOrder;
+}
+
+function orderFeedDataBySavedOrder(feedsData) {
+  if (!Array.isArray(feedsData) || feedsData.length === 0) {
+    return [];
+  }
+
+  const feedOrderIndex = new Map(
+    getNormalizedFeedOrder(feedsData.map((feed) => feed.name)).map(
+      (feedName, index) => [feedName, index],
+    ),
+  );
+
+  return [...feedsData].sort(
+    (a, b) =>
+      (feedOrderIndex.get(a.name) ?? Number.MAX_SAFE_INTEGER) -
+      (feedOrderIndex.get(b.name) ?? Number.MAX_SAFE_INTEGER),
+  );
 }
 
 /**
@@ -947,6 +1019,82 @@ function extractFeedName(section) {
   return headingClone.textContent.trim();
 }
 
+function getFeedNameFromNavLink(link) {
+  return link?.textContent?.trim() || "";
+}
+
+function isPinnedNavFeedName(feedName) {
+  return feedName === "All Feeds" || feedName === "Summary";
+}
+
+function getReorderableNavLinks() {
+  return Array.from(document.querySelectorAll(".feed-nav .nav-link")).filter(
+    (link) => !isPinnedNavFeedName(getFeedNameFromNavLink(link)),
+  );
+}
+
+function applySavedFeedOrderToNav() {
+  if (!hasSavedFeedOrder()) {
+    return;
+  }
+
+  const feedNav = document.querySelector(".feed-nav");
+  const feedLinks = getReorderableNavLinks();
+  if (!feedNav || feedLinks.length === 0) {
+    return;
+  }
+
+  const linkByFeedName = new Map(
+    feedLinks.map((link) => [getFeedNameFromNavLink(link), link]),
+  );
+  const summaryLink = Array.from(
+    feedNav.querySelectorAll(".nav-link"),
+  ).find((link) => getFeedNameFromNavLink(link) === "Summary");
+
+  getNormalizedFeedOrder(
+    feedLinks.map((link) => getFeedNameFromNavLink(link)),
+  ).forEach((feedName) => {
+    const link = linkByFeedName.get(feedName);
+    if (link) {
+      feedNav.insertBefore(link, summaryLink || null);
+    }
+  });
+}
+
+function applySavedFeedOrderToSections() {
+  if (!hasSavedFeedOrder()) {
+    return;
+  }
+
+  const feedSections = Array.from(document.querySelectorAll(".feed-section"));
+  if (feedSections.length === 0) {
+    return;
+  }
+
+  const parent = feedSections[0].parentNode;
+  if (!parent) {
+    return;
+  }
+
+  const feedSectionByName = new Map(
+    feedSections.map((section) => [extractFeedName(section), section]),
+  );
+  const footer = parent.querySelector(".footer");
+  const orderedFeedSections = getNormalizedFeedOrder(
+    feedSections.map((section) => extractFeedName(section)),
+  )
+    .map((feedName) => feedSectionByName.get(feedName))
+    .filter(Boolean)
+    .map((section) => ({ element: section }));
+
+  reorderDOMElements(orderedFeedSections, parent, footer);
+}
+
+function applySavedFeedOrderToMainPage() {
+  applySavedFeedOrderToNav();
+  applySavedFeedOrderToSections();
+}
+
 // Helper function to update count badge
 function updateCountBadge(section, count) {
   const cached = getSectionElements(section);
@@ -987,6 +1135,10 @@ function updateNoArticlesMessage(
 
 // Helper function to order feeds by unread status
 function orderFeedsByUnreadStatus(feedsData) {
+  if (hasSavedFeedOrder()) {
+    return orderFeedDataBySavedOrder(feedsData);
+  }
+
   const feedsWithUnread = feedsData
     .filter((f) => f.unreadCount > 0)
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -1308,7 +1460,7 @@ function setupMarkAsReadControls() {
 
         try {
           const confirmed = window.confirm(
-            "Are you sure you want to clear all read articles? This will mark all articles as unread and restore the original feed order.",
+            "Are you sure you want to clear all read articles? This will mark all articles as unread and refresh the current feed ordering.",
           );
 
           if (confirmed === true) {
@@ -1363,6 +1515,7 @@ function applyFeedFilter() {
   const enabledFeeds = getEnabledFeeds();
 
   if (!enabledFeeds || enabledFeeds.length === 0) {
+    applySavedFeedOrderToMainPage();
     return;
   }
 
@@ -1393,7 +1546,108 @@ function applyFeedFilter() {
     }
   });
 
+  applySavedFeedOrderToMainPage();
   updateStats();
+}
+
+let suppressNavFeedClickUntil = 0;
+
+function initializeNavFeedReordering() {
+  const feedNav = document.querySelector(".feed-nav");
+  const feedLinks = getReorderableNavLinks();
+  if (!feedNav || feedLinks.length === 0) {
+    return;
+  }
+
+  let draggedLink = null;
+  let movedLink = false;
+
+  feedLinks.forEach((link) => {
+    const feedName = getFeedNameFromNavLink(link);
+    link.classList.add("feed-order-draggable");
+    link.setAttribute("draggable", "true");
+    link.setAttribute("title", "Drag to reorder feeds");
+    link.setAttribute(
+      "aria-label",
+      `${feedName}. Drag to reorder this feed in the navigation.`,
+    );
+
+    if (link.dataset.feedReorderBound === "true") {
+      return;
+    }
+
+    link.dataset.feedReorderBound = "true";
+
+    link.addEventListener("dragstart", (e) => {
+      draggedLink = link;
+      movedLink = false;
+      link.classList.add("feed-order-dragging");
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", feedName);
+      }
+    });
+
+    link.addEventListener("dragover", (e) => {
+      if (!draggedLink || draggedLink === link) {
+        return;
+      }
+
+      e.preventDefault();
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = "move";
+      }
+
+      const targetRect = link.getBoundingClientRect();
+      const shouldInsertAfter = e.clientY > targetRect.top + targetRect.height / 2;
+      const insertionPoint = shouldInsertAfter ? link.nextElementSibling : link;
+
+      if (insertionPoint !== draggedLink) {
+        feedNav.insertBefore(draggedLink, insertionPoint);
+        movedLink = true;
+      }
+    });
+
+    link.addEventListener("drop", (e) => {
+      if (!draggedLink) {
+        return;
+      }
+
+      e.preventDefault();
+
+      if (movedLink) {
+        const orderedFeedNames = saveFeedOrder(
+          getReorderableNavLinks().map((navLink) => getFeedNameFromNavLink(navLink)),
+        );
+        applySavedFeedOrderToMainPage();
+
+        const updatedPosition = orderedFeedNames.indexOf(feedName);
+        if (updatedPosition !== -1) {
+          announceToScreenReader(`${feedName} moved to position ${updatedPosition + 1}`);
+        }
+        showToast("Feed order saved", "success");
+        suppressNavFeedClickUntil = Date.now() + 250;
+      }
+    });
+
+    link.addEventListener("dragend", () => {
+      link.classList.remove("feed-order-dragging");
+      draggedLink = null;
+      movedLink = false;
+    });
+
+    link.addEventListener("click", (e) => {
+      if (Date.now() < suppressNavFeedClickUntil) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  });
+}
+
+function initializeFeedOrder() {
+  applySavedFeedOrderToMainPage();
+  initializeNavFeedReordering();
 }
 
 function initializeFeedFilter() {
@@ -1401,17 +1655,23 @@ function initializeFeedFilter() {
 }
 
 document.addEventListener("DOMContentLoaded", initializeFeedFilter);
+document.addEventListener("DOMContentLoaded", initializeFeedOrder);
 
 if (
   document.readyState === "complete" ||
   document.readyState === "interactive"
 ) {
   setTimeout(initializeFeedFilter, 0);
+  setTimeout(initializeFeedOrder, 0);
 }
 
 window.addEventListener("storage", (e) => {
   if (e.key === getScopedStorageKey("enabledFeeds")) {
     applyFeedFilter();
+  }
+
+  if (e.key === getScopedStorageKey("feedOrder")) {
+    applySavedFeedOrderToMainPage();
   }
 });
 

@@ -294,8 +294,8 @@
           <h2 class="settings-section-title">Feed Selection</h2>
           <div class="settings-group">
             <p class="settings-group-description">
-              Select which feeds you want to see. Disabled feeds will be hidden
-              from the navigation and main view.
+              Drag and drop feeds to set their order. Disabled feeds will be
+              hidden from the navigation and main view.
             </p>
             <div class="settings-item">
               <div class="settings-item-actions">
@@ -906,13 +906,17 @@
             }
           }
 
-          // Sort feeds alphabetically
-          feeds.sort();
+          const orderedFeeds =
+            typeof getNormalizedFeedOrder === "function"
+              ? getNormalizedFeedOrder(feeds)
+              : [...feeds].sort();
+          container.innerHTML = "";
 
           // Create checkboxes
-          feeds.forEach((feedName) => {
+          orderedFeeds.forEach((feedName, index) => {
             const item = document.createElement("div");
             item.className = "feed-checkbox-item";
+            item.setAttribute("data-feed-name", feedName);
 
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
@@ -922,14 +926,27 @@
 
             checkbox.addEventListener("change", saveFeedSettings);
 
+            const position = document.createElement("span");
+            position.className = "feed-order-position";
+            position.textContent = `${index + 1}`;
+
             const label = document.createElement("label");
             label.setAttribute("for", checkbox.id);
             label.textContent = feedName;
 
+            const reorderHint = document.createElement("span");
+            reorderHint.className = "feed-order-hint";
+            reorderHint.textContent = "Drag to reorder";
+
+            item.appendChild(position);
             item.appendChild(checkbox);
             item.appendChild(label);
+            item.appendChild(reorderHint);
             container.appendChild(item);
           });
+
+          updateFeedOrderLabels(container);
+          initializeFeedCheckboxReordering(container);
         }
 
         function loadRSSFeedLinks() {
@@ -1161,6 +1178,132 @@
             showToast("Failed to save feed selection", "error");
           }
         }
+
+        function updateFeedOrderLabels(container) {
+          const items = container.querySelectorAll(".feed-checkbox-item");
+          items.forEach((item, index) => {
+            const position = item.querySelector(".feed-order-position");
+            const feedName = item.getAttribute("data-feed-name") || "";
+            if (position) {
+              position.textContent = `${index + 1}`;
+            }
+            item.setAttribute(
+              "aria-label",
+              `${feedName}, position ${index + 1}. Drag to reorder this feed.`,
+            );
+          });
+        }
+
+        function saveFeedOrderSettings(container, movedFeedName = "") {
+          const orderedFeedNames = Array.from(
+            container.querySelectorAll(".feed-checkbox-item"),
+          )
+            .map((item) => item.getAttribute("data-feed-name") || "")
+            .filter(Boolean);
+
+          try {
+            if (typeof saveFeedOrder === "function") {
+              saveFeedOrder(orderedFeedNames);
+            } else {
+              localStorage.setItem("feedOrder", JSON.stringify(orderedFeedNames));
+            }
+
+            updateFeedOrderLabels(container);
+
+            if (movedFeedName) {
+              const updatedPosition = orderedFeedNames.indexOf(movedFeedName);
+              if (updatedPosition !== -1) {
+                announceToScreenReader(
+                  `${movedFeedName} moved to position ${updatedPosition + 1}`,
+                );
+              }
+            }
+
+            showToast("Feed order saved", "success");
+          } catch (e) {
+            console.warn("Unable to save feed order:", e);
+            showToast("Failed to save feed order", "error");
+          }
+        }
+
+        function initializeFeedCheckboxReordering(container) {
+          const items = container.querySelectorAll(".feed-checkbox-item");
+          let draggedItem = null;
+          let movedItem = false;
+
+          items.forEach((item) => {
+            item.setAttribute("draggable", "true");
+
+            if (item.dataset.feedReorderBound === "true") {
+              return;
+            }
+
+            item.dataset.feedReorderBound = "true";
+
+            item.addEventListener("dragstart", (e) => {
+              draggedItem = item;
+              movedItem = false;
+              item.classList.add("feed-order-dragging");
+              if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData(
+                  "text/plain",
+                  item.getAttribute("data-feed-name") || "",
+                );
+              }
+            });
+
+            item.addEventListener("dragover", (e) => {
+              if (!draggedItem || draggedItem === item) {
+                return;
+              }
+
+              e.preventDefault();
+              const targetRect = item.getBoundingClientRect();
+              const shouldInsertAfter =
+                e.clientY > targetRect.top + targetRect.height / 2;
+              const insertionPoint = shouldInsertAfter
+                ? item.nextElementSibling
+                : item;
+
+              if (insertionPoint !== draggedItem) {
+                container.insertBefore(draggedItem, insertionPoint);
+                movedItem = true;
+                updateFeedOrderLabels(container);
+              }
+            });
+
+            item.addEventListener("drop", (e) => {
+              if (!draggedItem) {
+                return;
+              }
+
+              e.preventDefault();
+              if (movedItem) {
+                saveFeedOrderSettings(
+                  container,
+                  draggedItem.getAttribute("data-feed-name") || "",
+                );
+              }
+            });
+
+            item.addEventListener("dragend", () => {
+              item.classList.remove("feed-order-dragging");
+              draggedItem = null;
+              movedItem = false;
+              updateFeedOrderLabels(container);
+            });
+          });
+        }
+
+        window.addEventListener("storage", (e) => {
+          if (
+            e.key === getScopedStorageKey("enabledFeeds") ||
+            e.key === getScopedStorageKey("feedOrder")
+          ) {
+            loadFeedCheckboxes();
+          }
+        });
 
         // Initialize when DOM is ready
         if (

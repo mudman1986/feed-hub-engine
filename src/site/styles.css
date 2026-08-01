@@ -997,6 +997,16 @@ h3 {
   display: block;
 }
 
+.nav-link.feed-order-draggable {
+  cursor: grab;
+  user-select: none;
+}
+
+.nav-link.feed-order-dragging {
+  opacity: 70%;
+  border-style: dashed;
+}
+
 .nav-link:hover {
   background-color: var(--bg-hover);
   border-color: var(--border-accent);
@@ -1720,19 +1730,21 @@ h3 {
 }
 
 .feed-checkboxes {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .feed-checkbox-item {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
   padding: 0.875rem 1rem;
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-primary);
   border-radius: 0.5rem;
   transition: all 0.2s ease;
+  cursor: grab;
 }
 
 .feed-checkbox-item:hover {
@@ -1740,11 +1752,23 @@ h3 {
   border-color: var(--border-accent);
 }
 
+.feed-checkbox-item.feed-order-dragging {
+  opacity: 70%;
+  border-style: dashed;
+}
+
+.feed-order-position {
+  min-width: 1.75rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
 .feed-checkbox-item input[type="checkbox"] {
   width: 18px;
   height: 18px;
   margin: 0;
-  margin-right: 0.75rem;
   cursor: pointer;
   accent-color: var(--accent-primary);
 }
@@ -1755,6 +1779,12 @@ h3 {
   color: var(--text-primary);
   cursor: pointer;
   user-select: none;
+}
+
+.feed-order-hint {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .settings-back-button {
@@ -1836,7 +1866,17 @@ h3 {
   }
 
   .feed-checkboxes {
-    grid-template-columns: 1fr;
+    gap: 0.625rem;
+  }
+
+  .feed-checkbox-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .feed-order-hint {
+    width: 100%;
+    padding-left: 2.5rem;
   }
 }
 
