@@ -1205,7 +1205,10 @@
             if (typeof saveFeedOrder === "function") {
               saveFeedOrder(orderedFeedNames);
             } else {
-              localStorage.setItem("feedOrder", JSON.stringify(orderedFeedNames));
+              localStorage.setItem(
+                "feedOrder",
+                JSON.stringify(orderedFeedNames),
+              );
             }
 
             updateFeedOrderLabels(container);

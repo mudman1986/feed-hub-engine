@@ -333,7 +333,10 @@ function getStoredFeedOrder() {
   );
 }
 
-function getNormalizedFeedOrder(feedNames, storedFeedOrder = getStoredFeedOrder()) {
+function getNormalizedFeedOrder(
+  feedNames,
+  storedFeedOrder = getStoredFeedOrder(),
+) {
   const availableFeedNames = Array.isArray(feedNames)
     ? feedNames.filter(
         (feedName, index, names) =>
@@ -1047,9 +1050,9 @@ function applySavedFeedOrderToNav() {
   const linkByFeedName = new Map(
     feedLinks.map((link) => [getFeedNameFromNavLink(link), link]),
   );
-  const summaryLink = Array.from(
-    feedNav.querySelectorAll(".nav-link"),
-  ).find((link) => getFeedNameFromNavLink(link) === "Summary");
+  const summaryLink = Array.from(feedNav.querySelectorAll(".nav-link")).find(
+    (link) => getFeedNameFromNavLink(link) === "Summary",
+  );
 
   getNormalizedFeedOrder(
     feedLinks.map((link) => getFeedNameFromNavLink(link)),
@@ -1599,7 +1602,8 @@ function initializeNavFeedReordering() {
       }
 
       const targetRect = link.getBoundingClientRect();
-      const shouldInsertAfter = e.clientY > targetRect.top + targetRect.height / 2;
+      const shouldInsertAfter =
+        e.clientY > targetRect.top + targetRect.height / 2;
       const insertionPoint = shouldInsertAfter ? link.nextElementSibling : link;
 
       if (insertionPoint !== draggedLink) {
@@ -1617,13 +1621,17 @@ function initializeNavFeedReordering() {
 
       if (movedLink) {
         const orderedFeedNames = saveFeedOrder(
-          getReorderableNavLinks().map((navLink) => getFeedNameFromNavLink(navLink)),
+          getReorderableNavLinks().map((navLink) =>
+            getFeedNameFromNavLink(navLink),
+          ),
         );
         applySavedFeedOrderToMainPage();
 
         const updatedPosition = orderedFeedNames.indexOf(feedName);
         if (updatedPosition !== -1) {
-          announceToScreenReader(`${feedName} moved to position ${updatedPosition + 1}`);
+          announceToScreenReader(
+            `${feedName} moved to position ${updatedPosition + 1}`,
+          );
         }
         showToast("Feed order saved", "success");
         suppressNavFeedClickUntil = Date.now() + 250;

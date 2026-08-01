@@ -99,9 +99,9 @@ test.describe("Feed reordering", () => {
 
     await expect.poll(() => getNavFeedOrder(page)).toEqual(expectedOrder);
     await expect.poll(() => getMainFeedOrder(page)).toEqual(expectedOrder);
-    await expect.poll(() => getSettingsFeedOrder(settingsPage)).toEqual(
-      expectedOrder,
-    );
+    await expect
+      .poll(() => getSettingsFeedOrder(settingsPage))
+      .toEqual(expectedOrder);
 
     await page.reload();
     await openSidebarIfNeeded(page);
@@ -151,9 +151,9 @@ test.describe("Feed reordering", () => {
       await openFeedSelection(settingsPage);
     }
 
-    await expect.poll(() => getSettingsFeedOrder(settingsPage)).toEqual(
-      expectedOrder,
-    );
+    await expect
+      .poll(() => getSettingsFeedOrder(settingsPage))
+      .toEqual(expectedOrder);
     await expect.poll(() => getNavFeedOrder(page)).toEqual(expectedOrder);
     await expect.poll(() => getMainFeedOrder(page)).toEqual(expectedOrder);
 
