@@ -27,6 +27,7 @@ const SITE_SCOPED_STORAGE_KEYS = [
   "enabledFeeds",
   "experimentalTheme",
   "experimentalViewMode",
+  "feedOrder",
   "theme",
   "themeMode",
   "timeframe",
@@ -319,6 +320,129 @@ function removeLocalStorage(key) {
   } catch (e) {
     console.warn(`Unable to remove from localStorage for key "${key}":`, e);
   }
+}
+
+function getStoredFeedOrder() {
+  const storedFeedOrder = getLocalStorageJSON("feedOrder", []);
+  if (!Array.isArray(storedFeedOrder)) {
+    return [];
+  }
+
+  return storedFeedOrder.filter(
+    (feedName) => typeof feedName === "string" && feedName.trim() !== "",
+  );
+}
+
+function getNormalizedFeedOrder(
+  feedNames,
+  storedFeedOrder = getStoredFeedOrder(),
+) {
+  const availableFeedNames = Array.isArray(feedNames)
+    ? feedNames.filter(
+        (feedName, index, names) =>
+          typeof feedName === "string" &&
+          feedName.trim() !== "" &&
+          names.indexOf(feedName) === index,
+      )
+    : [];
+  const availableFeedNameSet = new Set(availableFeedNames);
+  const normalizedFeedOrder = [];
+  const seenFeedNames = new Set();
+
+  if (Array.isArray(storedFeedOrder)) {
+    storedFeedOrder.forEach((feedName) => {
+      if (availableFeedNameSet.has(feedName) && !seenFeedNames.has(feedName)) {
+        normalizedFeedOrder.push(feedName);
+        seenFeedNames.add(feedName);
+      }
+    });
+  }
+
+  availableFeedNames.forEach((feedName) => {
+    if (!seenFeedNames.has(feedName)) {
+      normalizedFeedOrder.push(feedName);
+      seenFeedNames.add(feedName);
+    }
+  });
+
+  return normalizedFeedOrder;
+}
+
+function decodeFeedListData(value) {
+  return value
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#x27;", "'")
+    .replaceAll("&#x2F;", "/")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&");
+}
+
+function getFeedListData() {
+  const feedListElement = document.getElementById("feed-list-data");
+  if (!feedListElement) {
+    return [];
+  }
+
+  try {
+    const rawFeedList = feedListElement.textContent?.trim() || "[]";
+    const parsedFeedList = JSON.parse(decodeFeedListData(rawFeedList));
+    return Array.isArray(parsedFeedList)
+      ? parsedFeedList.filter(
+          (feedName) => typeof feedName === "string" && feedName.trim() !== "",
+        )
+      : [];
+  } catch (e) {
+    console.warn("Unable to parse feed list data:", e);
+    return [];
+  }
+}
+
+function getResolvedFeedOrder(visibleFeedNames = []) {
+  const navFeedNames = getCurrentNavFeedOrder();
+  const canonicalFeedNames = getFeedListData();
+  const availableFeedNames =
+    navFeedNames.length > 0
+      ? navFeedNames
+      : canonicalFeedNames.length > 0
+        ? canonicalFeedNames
+        : visibleFeedNames;
+  const visibleFeedNameSet = new Set(
+    Array.isArray(visibleFeedNames) ? visibleFeedNames : [],
+  );
+
+  return getNormalizedFeedOrder(availableFeedNames).filter(
+    (feedName) =>
+      visibleFeedNameSet.size === 0 || visibleFeedNameSet.has(feedName),
+  );
+}
+
+function hasSavedFeedOrder() {
+  return getStoredFeedOrder().length > 0;
+}
+
+function saveFeedOrder(feedNames) {
+  const normalizedFeedOrder = getNormalizedFeedOrder(feedNames, feedNames);
+  setLocalStorageJSON("feedOrder", normalizedFeedOrder);
+  return normalizedFeedOrder;
+}
+
+function orderFeedDataBySavedOrder(feedsData) {
+  if (!Array.isArray(feedsData) || feedsData.length === 0) {
+    return [];
+  }
+
+  const feedOrderIndex = new Map(
+    getResolvedFeedOrder(feedsData.map((feed) => feed.name)).map(
+      (feedName, index) => [feedName, index],
+    ),
+  );
+
+  return [...feedsData].sort(
+    (a, b) =>
+      (feedOrderIndex.get(a.name) ?? Number.MAX_SAFE_INTEGER) -
+      (feedOrderIndex.get(b.name) ?? Number.MAX_SAFE_INTEGER),
+  );
 }
 
 /**
@@ -947,6 +1071,91 @@ function extractFeedName(section) {
   return headingClone.textContent.trim();
 }
 
+function getFeedNameFromNavLink(link) {
+  return link?.textContent?.trim() || "";
+}
+
+function isPinnedNavFeedName(feedName) {
+  return feedName === "All Feeds" || feedName === "Summary";
+}
+
+function getReorderableNavLinks() {
+  return Array.from(document.querySelectorAll(".feed-nav .nav-link")).filter(
+    (link) => !isPinnedNavFeedName(getFeedNameFromNavLink(link)),
+  );
+}
+
+function getCurrentNavFeedOrder() {
+  return getReorderableNavLinks().map((link) => getFeedNameFromNavLink(link));
+}
+
+function applySavedFeedOrderToNav() {
+  if (!hasSavedFeedOrder()) {
+    return;
+  }
+
+  const feedNav = document.querySelector(".feed-nav");
+  const feedLinks = getReorderableNavLinks();
+  if (!feedNav || feedLinks.length === 0) {
+    return;
+  }
+
+  const linkByFeedName = new Map(
+    feedLinks.map((link) => [getFeedNameFromNavLink(link), link]),
+  );
+  const summaryLink = Array.from(feedNav.querySelectorAll(".nav-link")).find(
+    (link) => getFeedNameFromNavLink(link) === "Summary",
+  );
+
+  getResolvedFeedOrder(
+    feedLinks.map((link) => getFeedNameFromNavLink(link)),
+  ).forEach((feedName) => {
+    const link = linkByFeedName.get(feedName);
+    if (link) {
+      feedNav.insertBefore(link, summaryLink || null);
+    }
+  });
+}
+
+function applySavedFeedOrderToSections() {
+  if (!hasSavedFeedOrder()) {
+    return;
+  }
+
+  const feedSections = Array.from(document.querySelectorAll(".feed-section"));
+  if (feedSections.length === 0) {
+    return;
+  }
+
+  const parent = feedSections[0].parentNode;
+  if (!parent) {
+    return;
+  }
+
+  const feedSectionByName = new Map(
+    feedSections.map((section) => [extractFeedName(section), section]),
+  );
+  const footer = parent.querySelector(".footer");
+  const navFeedOrder = getCurrentNavFeedOrder();
+  const orderedFeedSections = (
+    navFeedOrder.length > 0
+      ? navFeedOrder
+      : getResolvedFeedOrder(
+          feedSections.map((section) => extractFeedName(section)),
+        )
+  )
+    .map((feedName) => feedSectionByName.get(feedName))
+    .filter(Boolean)
+    .map((section) => ({ element: section }));
+
+  reorderDOMElements(orderedFeedSections, parent, footer);
+}
+
+function applySavedFeedOrderToMainPage() {
+  applySavedFeedOrderToNav();
+  applySavedFeedOrderToSections();
+}
+
 // Helper function to update count badge
 function updateCountBadge(section, count) {
   const cached = getSectionElements(section);
@@ -987,6 +1196,10 @@ function updateNoArticlesMessage(
 
 // Helper function to order feeds by unread status
 function orderFeedsByUnreadStatus(feedsData) {
+  if (hasSavedFeedOrder()) {
+    return orderFeedDataBySavedOrder(feedsData);
+  }
+
   const feedsWithUnread = feedsData
     .filter((f) => f.unreadCount > 0)
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -1041,10 +1254,14 @@ function updateFeedCounts() {
 
   // Reorder feeds by unread status
   if (feedSections.length > 0 && feedSections[0].parentNode) {
-    const parent = feedSections[0].parentNode;
-    const footer = parent.querySelector(".footer");
-    const orderedFeeds = orderFeedsByUnreadStatus(feedsData);
-    reorderDOMElements(orderedFeeds, parent, footer);
+    if (hasSavedFeedOrder()) {
+      applySavedFeedOrderToMainPage();
+    } else {
+      const parent = feedSections[0].parentNode;
+      const footer = parent.querySelector(".footer");
+      const orderedFeeds = orderFeedsByUnreadStatus(feedsData);
+      reorderDOMElements(orderedFeeds, parent, footer);
+    }
   }
 }
 
@@ -1282,6 +1499,11 @@ function reorderArticlesInFeed(articleList, articles) {
 function reorderFeedsByUnreadStatus(feedsData) {
   if (feedsData.length === 0) return;
 
+  if (hasSavedFeedOrder()) {
+    applySavedFeedOrderToMainPage();
+    return;
+  }
+
   const feedSections = document.querySelectorAll(".feed-section");
   if (feedSections.length === 0) return;
 
@@ -1308,7 +1530,7 @@ function setupMarkAsReadControls() {
 
         try {
           const confirmed = window.confirm(
-            "Are you sure you want to clear all read articles? This will mark all articles as unread and restore the original feed order.",
+            "Are you sure you want to clear all read articles? This will mark all articles as unread and refresh the current feed ordering.",
           );
 
           if (confirmed === true) {
@@ -1363,6 +1585,7 @@ function applyFeedFilter() {
   const enabledFeeds = getEnabledFeeds();
 
   if (!enabledFeeds || enabledFeeds.length === 0) {
+    applySavedFeedOrderToMainPage();
     return;
   }
 
@@ -1393,7 +1616,152 @@ function applyFeedFilter() {
     }
   });
 
+  applySavedFeedOrderToMainPage();
   updateStats();
+}
+
+let suppressNavFeedClickUntil = 0;
+
+function saveCurrentNavFeedOrder(movedFeedName = "") {
+  const orderedFeedNames = saveFeedOrder(
+    getReorderableNavLinks().map((navLink) => getFeedNameFromNavLink(navLink)),
+  );
+  applySavedFeedOrderToMainPage();
+
+  const updatedPosition = orderedFeedNames.indexOf(movedFeedName);
+  if (movedFeedName && updatedPosition !== -1) {
+    announceToScreenReader(
+      `${movedFeedName} moved to position ${updatedPosition + 1}`,
+    );
+  }
+
+  showToast("Feed order saved", "success");
+  suppressNavFeedClickUntil = Date.now() + 250;
+}
+
+function moveNavFeedLink(link, direction) {
+  const feedNav = document.querySelector(".feed-nav");
+  const feedLinks = getReorderableNavLinks();
+  const currentIndex = feedLinks.indexOf(link);
+
+  if (!feedNav || currentIndex === -1) {
+    return;
+  }
+
+  if (direction === "up" && currentIndex > 0) {
+    feedNav.insertBefore(link, feedLinks[currentIndex - 1]);
+    saveCurrentNavFeedOrder(getFeedNameFromNavLink(link));
+  }
+
+  if (direction === "down" && currentIndex < feedLinks.length - 1) {
+    feedNav.insertBefore(feedLinks[currentIndex + 1], link);
+    saveCurrentNavFeedOrder(getFeedNameFromNavLink(link));
+  }
+}
+
+function initializeNavFeedReordering() {
+  const feedNav = document.querySelector(".feed-nav");
+  const feedLinks = getReorderableNavLinks();
+  if (!feedNav || feedLinks.length === 0) {
+    return;
+  }
+
+  let draggedLink = null;
+  let movedLink = false;
+
+  feedLinks.forEach((link) => {
+    const feedName = getFeedNameFromNavLink(link);
+    link.classList.add("feed-order-draggable");
+    link.setAttribute("draggable", "true");
+    link.setAttribute("title", "Drag to reorder feeds");
+    link.setAttribute(
+      "aria-label",
+      `${feedName}. Drag to reorder this feed in the navigation.`,
+    );
+
+    if (link.dataset.feedReorderBound === "true") {
+      return;
+    }
+
+    link.dataset.feedReorderBound = "true";
+
+    link.addEventListener("dragstart", (e) => {
+      draggedLink = link;
+      movedLink = false;
+      link.classList.add("feed-order-dragging");
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", feedName);
+      }
+    });
+
+    link.addEventListener("dragover", (e) => {
+      if (!draggedLink || draggedLink === link) {
+        return;
+      }
+
+      e.preventDefault();
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = "move";
+      }
+
+      const targetRect = link.getBoundingClientRect();
+      const shouldInsertAfter =
+        e.clientY > targetRect.top + targetRect.height / 2;
+      const insertionPoint = shouldInsertAfter ? link.nextElementSibling : link;
+
+      if (insertionPoint !== draggedLink) {
+        feedNav.insertBefore(draggedLink, insertionPoint);
+        movedLink = true;
+      }
+    });
+
+    link.addEventListener("drop", (e) => {
+      if (!draggedLink) {
+        return;
+      }
+
+      e.preventDefault();
+
+      if (movedLink) {
+        saveCurrentNavFeedOrder(feedName);
+      }
+    });
+
+    link.addEventListener("dragend", () => {
+      link.classList.remove("feed-order-dragging");
+      draggedLink = null;
+      movedLink = false;
+    });
+
+    link.addEventListener("click", (e) => {
+      if (Date.now() < suppressNavFeedClickUntil) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+
+    link.addEventListener("keydown", (e) => {
+      if (!e.altKey) {
+        return;
+      }
+
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        moveNavFeedLink(link, "up");
+      }
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        moveNavFeedLink(link, "down");
+      }
+    });
+  });
+}
+
+function initializeFeedOrder() {
+  applySavedFeedOrderToMainPage();
+  initializeNavFeedReordering();
 }
 
 function initializeFeedFilter() {
@@ -1401,17 +1769,23 @@ function initializeFeedFilter() {
 }
 
 document.addEventListener("DOMContentLoaded", initializeFeedFilter);
+document.addEventListener("DOMContentLoaded", initializeFeedOrder);
 
 if (
   document.readyState === "complete" ||
   document.readyState === "interactive"
 ) {
   setTimeout(initializeFeedFilter, 0);
+  setTimeout(initializeFeedOrder, 0);
 }
 
 window.addEventListener("storage", (e) => {
   if (e.key === getScopedStorageKey("enabledFeeds")) {
     applyFeedFilter();
+  }
+
+  if (e.key === getScopedStorageKey("feedOrder")) {
+    applySavedFeedOrderToMainPage();
   }
 });
 
