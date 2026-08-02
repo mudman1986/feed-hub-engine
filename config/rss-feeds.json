@@ -1,6 +1,11 @@
 {
   "feeds": [
     {
+      "name": "Microsoft Developer Changelog",
+      "url": "https://developer.microsoft.com/api/changelog/rss",
+      "website_url": "https://developer.microsoft.com/en-us/changelog"
+    },
+    {
       "name": "Microsoft DevOps Blog",
       "url": "https://devblogs.microsoft.com/devops/feed/",
       "website_url": "https://devblogs.microsoft.com/devops/"
