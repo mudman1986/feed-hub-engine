@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Assign Copilot to issue
-        uses: mudman1986/auto-assign-copilot-action@56b5891c2ce1314138b9f68927b2c3902eba8adf # v2.0.12
+        uses: mudman1986/auto-assign-copilot-action@15d53da4d085cb3d41a999f0cb88075fb1ac9436 # v2.0.12
         with:
           github-token: ${{ secrets.COPILOT_ASSIGN_PAT }}
           mode: ${{ inputs.mode || 'auto' }}
