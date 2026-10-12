@@ -267,8 +267,8 @@
 
 body {
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Helvetica",
-    "Arial", sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial,
+    sans-serif;
   line-height: 1.7;
   color: var(--text-primary);
   background: linear-gradient(
@@ -378,6 +378,7 @@ body {
   color: var(
     --text-primary
   ); /* Fallback for browsers without background-clip: text support */
+
   background: linear-gradient(
     135deg,
     var(--gradient-start),
@@ -645,7 +646,6 @@ h3 {
   padding: 1.75rem;
   background: var(--card-bg);
   backdrop-filter: blur(10px);
-
   border-radius: 1rem;
   border: 1px solid var(--card-border);
   box-shadow:
@@ -674,7 +674,7 @@ h3 {
     var(--gradient-start),
     var(--gradient-end)
   );
-  opacity: 60%;
+  opacity: 0.6;
 }
 
 .stat-card:hover {
@@ -791,7 +791,7 @@ h3 {
 }
 
 .article-item.read {
-  opacity: 60%;
+  opacity: 0.6;
 }
 
 .article-item.read .article-title {
@@ -819,7 +819,6 @@ h3 {
 .failed-feeds {
   background: var(--card-bg);
   backdrop-filter: blur(10px);
-
   padding: 1.5rem;
   border-radius: 0.75rem;
   border: 1px solid var(--card-border);
@@ -890,7 +889,6 @@ h3 {
 .feed-breakdown {
   background: var(--card-bg);
   backdrop-filter: blur(10px);
-
   padding: 1.75rem;
   border-radius: 1rem;
   border: 1px solid var(--card-border);
@@ -907,7 +905,7 @@ h3 {
   .feed-breakdown,
   .experimental-themes {
     background-color: var(--bg-secondary);
-    opacity: 95%;
+    opacity: 0.95;
   }
 }
 
@@ -1003,7 +1001,7 @@ h3 {
 }
 
 .nav-link.feed-order-dragging {
-  opacity: 70%;
+  opacity: 0.7;
   border-style: dashed;
 }
 
@@ -1256,12 +1254,12 @@ h3 {
     background 0.2s ease,
     transform 0.2s ease;
   color: var(--text-secondary);
-  opacity: 50%;
+  opacity: 0.5;
   z-index: 1;
 }
 
 .read-indicator:hover {
-  opacity: 100%;
+  opacity: 1;
   background: var(--bg-hover);
   transform: scale(1.1);
 }
@@ -1270,7 +1268,7 @@ h3 {
   background: var(--border-success);
   border: 2px solid var(--border-success);
   color: white;
-  opacity: 100%;
+  opacity: 1;
 }
 
 .reset-read-button {
@@ -1446,7 +1444,7 @@ h3 {
   background: transparent;
 
   /* Lower opacity when not active */
-  opacity: 40%;
+  opacity: 0.4;
 
   /* Smooth transitions */
   transition: all 0.15s ease;
@@ -1457,7 +1455,7 @@ h3 {
 
 /* Hover state - more visible but still subtle */
 [data-view="list"] .read-indicator:hover {
-  opacity: 80%;
+  opacity: 0.8;
   background: var(--bg-tertiary);
   transform: translateY(-50%);
 }
@@ -1467,7 +1465,7 @@ h3 {
   background: var(--accent-success);
   border: none;
   color: white;
-  opacity: 90%;
+  opacity: 0.9;
   transform: translateY(-50%);
   padding: 0.4125rem;
   background-clip: content-box;
@@ -1475,7 +1473,7 @@ h3 {
 
 /* Active hover state */
 [data-view="list"] .read-indicator.active:hover {
-  opacity: 100%;
+  opacity: 1;
   transform: translateY(-50%);
 }
 
@@ -1753,7 +1751,7 @@ h3 {
 }
 
 .feed-checkbox-item.feed-order-dragging {
-  opacity: 70%;
+  opacity: 0.7;
   border-style: dashed;
 }
 
@@ -1815,7 +1813,7 @@ h3 {
 }
 
 .feed-order-button:disabled {
-  opacity: 50%;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -2055,7 +2053,7 @@ h3 {
 
 /* Minimalist - Ultra-clean, minimal design */
 [data-theme="minimalist"] body {
-  font-family: "Helvetica Neue", "Arial", sans-serif;
+  font-family: "Helvetica Neue", Arial, sans-serif;
   line-height: 1.8;
   letter-spacing: 0.02em;
 }
@@ -2125,7 +2123,7 @@ h3 {
 
 /* Terminal - Command-line inspired monospace design with enhanced CRT effects */
 [data-theme="terminal"] body {
-  font-family: "Courier New", "Consolas", "Liberation Mono", monospace;
+  font-family: "Courier New", Consolas, "Liberation Mono", monospace;
   line-height: 1.6;
   background: #0c0c0c;
   position: relative;
@@ -2154,6 +2152,7 @@ h3 {
   0% {
     background-position: 0 0;
   }
+
   100% {
     background-position: 0 4px;
   }
@@ -2171,18 +2170,20 @@ h3 {
   pointer-events: none;
   z-index: 9998;
   animation: flicker 0.15s infinite;
-  opacity: 0%;
+  opacity: 0;
 }
 
 @keyframes flicker {
   0% {
-    opacity: 3%;
+    opacity: 0.03;
   }
+
   50% {
-    opacity: 0%;
+    opacity: 0;
   }
+
   100% {
-    opacity: 3%;
+    opacity: 0.03;
   }
 }
 
@@ -2216,10 +2217,10 @@ h3 {
 
 [data-theme="terminal"] .header-title {
   background: none;
-  -webkit-background-clip: unset;
+  background-clip: unset;
   -webkit-text-fill-color: unset;
   color: var(--text-primary);
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
   text-shadow:
     0 0 8px rgb(0 255 0 / 80%),
     0 0 15px rgb(0 255 0 / 50%);
@@ -2232,6 +2233,7 @@ h3 {
       0 0 8px rgb(0 255 0 / 80%),
       0 0 15px rgb(0 255 0 / 50%);
   }
+
   to {
     text-shadow:
       0 0 12px rgb(0 255 0 / 100%),
@@ -2257,7 +2259,7 @@ h3 {
 [data-theme="terminal"] h2 {
   color: var(--text-primary);
   text-shadow: 0 0 8px rgb(0 255 0 / 80%);
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
 }
 
 [data-theme="terminal"] h2::before {
@@ -2273,7 +2275,7 @@ h3 {
   border-left: 2px solid #0f0;
   border-radius: 0;
   background-color: transparent;
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
   box-shadow: -4px 0 8px rgb(0 255 0 / 10%);
 }
 
@@ -2289,7 +2291,7 @@ h3 {
 [data-theme="terminal"] .article-title {
   color: var(--text-primary);
   text-shadow: 0 0 6px rgb(0 255 0 / 60%);
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
 }
 
 [data-theme="terminal"] .article-title::before {
@@ -2305,7 +2307,7 @@ h3 {
 
 [data-theme="terminal"] .article-meta,
 [data-theme="terminal"] .article-description {
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
   color: var(--text-secondary);
   text-shadow: 0 0 4px rgb(0 255 0 / 40%);
 }
@@ -2324,7 +2326,7 @@ h3 {
 [data-theme="terminal"] button,
 [data-theme="terminal"] select,
 [data-theme="terminal"] input {
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
   border: 1px solid #0f0;
   background: #1a1a1a;
   color: var(--text-primary);
@@ -2367,19 +2369,19 @@ h3 {
 }
 
 [data-theme="magazine"] body {
-  font-family: "Georgia", "Times New Roman", serif;
+  font-family: Georgia, "Times New Roman", serif;
   line-height: 1.8;
 }
 
 [data-theme="magazine"] .header-title {
-  font-family: "Georgia", serif;
+  font-family: Georgia, serif;
   font-style: italic;
   font-size: 2rem;
   font-weight: 700;
 }
 
 [data-theme="magazine"] h2 {
-  font-family: "Georgia", serif;
+  font-family: Georgia, serif;
   font-weight: 700;
   font-size: 1.75rem;
   border-bottom: 3px double var(--border-accent);
@@ -2396,13 +2398,13 @@ h3 {
 }
 
 [data-theme="magazine"] .article-title {
-  font-family: "Georgia", serif;
+  font-family: Georgia, serif;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 [data-theme="magazine"] .article-meta {
-  font-family: "Georgia", serif;
+  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.9rem;
 }
@@ -2445,21 +2447,21 @@ h3 {
 [data-theme="glassmorphism"] .feed-section,
 [data-theme="glassmorphism"] .sidebar {
   backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-primary);
 }
 
 [data-theme="glassmorphism"] .article-item {
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-primary);
 }
 
 [data-theme="glassmorphism"] .article-item:hover {
   backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
   background-color: var(--bg-hover);
   transform: translateY(-2px);
 }
@@ -2472,7 +2474,7 @@ h3 {
   [data-theme="glassmorphism"] .article-item,
   [data-theme="glassmorphism"] .article-item:hover {
     background-color: var(--bg-secondary);
-    opacity: 95%;
+    opacity: 0.95;
   }
 }
 
@@ -2559,7 +2561,7 @@ h3 {
 
 /* Futuristic - Sci-fi inspired neon design with enhanced glow effects */
 [data-theme="futuristic"] body {
-  font-family: "Rajdhani", "Exo 2", "Orbitron", sans-serif;
+  font-family: Rajdhani, "Exo 2", Orbitron, sans-serif;
   line-height: 1.7;
   letter-spacing: 0.05em;
   background: radial-gradient(ellipse at center, #13182e 0%, #0a0e27 100%);
@@ -2647,6 +2649,7 @@ h3 {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -2673,6 +2676,7 @@ h3 {
       0 0 30px rgb(0 255 255 / 60%),
       0 0 40px rgb(0 255 255 / 40%);
   }
+
   to {
     text-shadow:
       0 0 15px rgb(0 255 255 / 100%),
@@ -2702,10 +2706,7 @@ h3 {
 [data-theme="futuristic"] .feed-section::before {
   content: "";
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
+  inset: -2px;
   background: linear-gradient(
     135deg,
     rgb(0 255 255 / 40%),
@@ -2715,7 +2716,7 @@ h3 {
   background-size: 200% 200%;
   border-radius: inherit;
   z-index: -1;
-  opacity: 30%;
+  opacity: 0.3;
   filter: blur(12px);
   animation: gradient-shift 6s ease infinite;
 }
@@ -2725,6 +2726,7 @@ h3 {
   100% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
@@ -2759,6 +2761,7 @@ h3 {
   0% {
     background-position: 0% 0%;
   }
+
   100% {
     background-position: 0% 100%;
   }
@@ -2857,7 +2860,7 @@ h3 {
 
 /* Newspaper - Classic newspaper layout */
 [data-theme="newspaper"] body {
-  font-family: "Times New Roman", "Georgia", serif;
+  font-family: "Times New Roman", Georgia, serif;
   line-height: 1.7;
 }
 
@@ -2902,7 +2905,7 @@ h3 {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   background: none;
-  -webkit-background-clip: unset;
+  background-clip: unset;
   -webkit-text-fill-color: unset;
   color: #000;
 }
@@ -3188,8 +3191,7 @@ h3 {
 }
 
 [data-view="horizontal-scroll"] .main-content {
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto hidden;
   white-space: nowrap;
   padding: 2rem 0;
 }
@@ -3233,7 +3235,7 @@ h3 {
 
 [data-view="masonry-grid"] .article-item {
   break-inside: avoid;
-  page-break-inside: avoid;
+  break-inside: avoid;
   margin-bottom: 1.5rem;
   padding: 1.5rem;
   display: inline-block;
@@ -3627,7 +3629,7 @@ h3 {
 @supports not (backdrop-filter: blur(10px)) {
   [data-theme="diagonal-split"] .feed-section {
     background-color: var(--bg-secondary);
-    opacity: 95%;
+    opacity: 0.95;
   }
 }
 
@@ -3738,10 +3740,7 @@ h3 {
   .article-item:first-child::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: linear-gradient(0deg, rgb(0 0 0 / 70%) 0%, transparent 100%);
   z-index: 0;
 }
@@ -3804,9 +3803,8 @@ h3 {
 }
 
 [data-theme="grid-cards"] .feed-nav {
-  flex-direction: row;
+  flex-flow: row wrap;
   gap: 1rem;
-  flex-wrap: wrap;
 }
 
 [data-theme="grid-cards"] .main-content {
@@ -3969,7 +3967,7 @@ h3 {
 
 /* List-Dense - Reddit/Hacker News style minimal list */
 [data-view="list-dense"] {
-  font-family: "Verdana", "Arial", sans-serif;
+  font-family: Verdana, Arial, sans-serif;
   font-size: 0.875rem;
 }
 
@@ -3987,7 +3985,7 @@ h3 {
   font-size: 1.5rem;
   color: #fff;
   background: none;
-  -webkit-background-clip: unset;
+  background-clip: unset;
   -webkit-text-fill-color: unset;
 }
 
@@ -4366,6 +4364,7 @@ h3 {
 
 /* Note: Layout-based themes (Minimalist, Magazine, etc.) automatically adapt
    to light mode using the base :root variables, so no separate variants needed. */
+
 /* =================================
    ACCESSIBILITY & UX IMPROVEMENTS
    ================================= */
@@ -4431,7 +4430,7 @@ input:focus-visible {
 }
 
 /* Better touch targets on mobile for article links in card view */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   [data-view="card"] .article-item {
     padding: 1.5rem 3rem 1.5rem 1.5rem;
     min-height: 72px;
@@ -4461,7 +4460,7 @@ input:focus-visible {
   padding: 0.625rem 1.25rem;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .header-controls button {
     min-height: 48px;
     min-width: 48px;
@@ -4478,7 +4477,7 @@ select,
   padding: 0.75rem 2.5rem 0.75rem 1rem;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   select,
   .view-select,
   .timeframe-select,
@@ -4517,7 +4516,7 @@ select,
 }
 
 /* Responsive header improvements */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .preview-site-banner {
     padding: 0.75rem 1rem;
   }
@@ -4532,7 +4531,7 @@ select,
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .preview-site-banner {
     flex-direction: column;
     align-items: stretch;
@@ -4563,7 +4562,7 @@ select,
 }
 
 /* Settings sidebar responsive improvements */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .settings-container {
     flex-direction: column;
   }
@@ -4590,12 +4589,12 @@ select,
 /* Improve color contrast for better readability */
 .article-meta {
   /* Ensure sufficient contrast */
-  opacity: 90%;
+  opacity: 0.9;
 }
 
 .read .article-item {
   /* Improve read article visibility */
-  opacity: 65%;
+  opacity: 0.65;
 }
 
 /* Better theme transition */
@@ -4647,7 +4646,7 @@ html {
   align-items: center;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .nav-link {
     min-height: 48px;
     padding: 1rem 1.25rem;
@@ -4661,7 +4660,7 @@ html {
 .loading {
   position: relative;
   pointer-events: none;
-  opacity: 60%;
+  opacity: 0.6;
 }
 
 .loading::after {
@@ -4755,24 +4754,24 @@ html {
 @keyframes toast-slide-in {
   from {
     transform: translateX(120%);
-    opacity: 0%;
+    opacity: 0;
   }
 
   to {
     transform: translateX(0);
-    opacity: 100%;
+    opacity: 1;
   }
 }
 
 @keyframes toast-slide-out {
   from {
     transform: translateX(0);
-    opacity: 100%;
+    opacity: 1;
   }
 
   to {
     transform: translateX(120%);
-    opacity: 0%;
+    opacity: 0;
   }
 }
 
@@ -4817,7 +4816,7 @@ html {
   color: var(--accent-primary);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .toast-container {
     right: 1rem;
     left: 1rem;
@@ -4840,15 +4839,15 @@ html {
   height: 12px;
   margin-left: 0.25rem;
   vertical-align: middle;
-  opacity: 75%;
+  opacity: 0.75;
   transition: opacity 0.2s ease;
 }
 
 a:hover .external-link-icon {
-  opacity: 100%;
+  opacity: 1;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .external-link-icon {
     width: 14px;
     height: 14px;
@@ -4862,7 +4861,7 @@ a:hover .external-link-icon {
 
 /* Minimalist Light - Ultra-clean, minimal design with light colors */
 [data-theme="minimalist-light"] body {
-  font-family: "Helvetica Neue", "Arial", sans-serif;
+  font-family: "Helvetica Neue", Arial, sans-serif;
   line-height: 1.8;
   letter-spacing: 0.02em;
 }
@@ -4932,7 +4931,7 @@ a:hover .external-link-icon {
 
 /* Terminal Light - Command-line inspired with dark text on light background */
 [data-theme="terminal-light"] body {
-  font-family: "Courier New", "Consolas", "Liberation Mono", monospace;
+  font-family: "Courier New", Consolas, "Liberation Mono", monospace;
   line-height: 1.6;
   background: #f0f0f0;
   position: relative;
@@ -4961,6 +4960,7 @@ a:hover .external-link-icon {
   0% {
     background-position: 0 0;
   }
+
   100% {
     background-position: 0 4px;
   }
@@ -4978,18 +4978,20 @@ a:hover .external-link-icon {
   pointer-events: none;
   z-index: 9998;
   animation: flicker-light 0.15s infinite;
-  opacity: 0%;
+  opacity: 0;
 }
 
 @keyframes flicker-light {
   0% {
-    opacity: 2%;
+    opacity: 0.02;
   }
+
   50% {
-    opacity: 0%;
+    opacity: 0;
   }
+
   100% {
-    opacity: 2%;
+    opacity: 0.02;
   }
 }
 
@@ -5023,10 +5025,10 @@ a:hover .external-link-icon {
 
 [data-theme="terminal-light"] .header-title {
   background: none;
-  -webkit-background-clip: unset;
+  background-clip: unset;
   -webkit-text-fill-color: unset;
   color: var(--text-primary);
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
   text-shadow:
     0 0 4px rgb(0 100 0 / 40%),
     0 0 8px rgb(0 100 0 / 25%);
@@ -5039,6 +5041,7 @@ a:hover .external-link-icon {
       0 0 4px rgb(0 100 0 / 40%),
       0 0 8px rgb(0 100 0 / 25%);
   }
+
   to {
     text-shadow:
       0 0 6px rgb(0 100 0 / 50%),
@@ -5064,7 +5067,7 @@ a:hover .external-link-icon {
 [data-theme="terminal-light"] h2 {
   color: var(--text-primary);
   text-shadow: 0 0 4px rgb(0 100 0 / 40%);
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
 }
 
 [data-theme="terminal-light"] h2::before {
@@ -5080,7 +5083,7 @@ a:hover .external-link-icon {
   border-left: 2px solid #0a0;
   border-radius: 0;
   background-color: transparent;
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
   box-shadow: -4px 0 4px rgb(0 100 0 / 5%);
 }
 
@@ -5096,7 +5099,7 @@ a:hover .external-link-icon {
 [data-theme="terminal-light"] .article-title {
   color: var(--text-primary);
   text-shadow: 0 0 3px rgb(0 100 0 / 30%);
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
 }
 
 [data-theme="terminal-light"] .article-title::before {
@@ -5112,7 +5115,7 @@ a:hover .external-link-icon {
 
 [data-theme="terminal-light"] .article-meta,
 [data-theme="terminal-light"] .article-description {
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
   color: var(--text-secondary);
   text-shadow: 0 0 2px rgb(0 100 0 / 20%);
 }
@@ -5131,7 +5134,7 @@ a:hover .external-link-icon {
 [data-theme="terminal-light"] button,
 [data-theme="terminal-light"] select,
 [data-theme="terminal-light"] input {
-  font-family: "Courier New", "Consolas", monospace;
+  font-family: "Courier New", Consolas, monospace;
   border: 1px solid #0a0;
   background: #fff;
   color: var(--text-primary);
@@ -5228,7 +5231,7 @@ a:hover .external-link-icon {
 
 /* Futuristic Light - Sci-fi inspired with bright accents on white */
 [data-theme="futuristic-light"] body {
-  font-family: "Rajdhani", "Exo 2", "Orbitron", sans-serif;
+  font-family: Rajdhani, "Exo 2", Orbitron, sans-serif;
   line-height: 1.7;
   letter-spacing: 0.05em;
   background: radial-gradient(ellipse at center, #f0f8ff 0%, #e6f2ff 100%);
@@ -5316,6 +5319,7 @@ a:hover .external-link-icon {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -5340,6 +5344,7 @@ a:hover .external-link-icon {
       0 0 10px rgb(0 128 255 / 30%),
       0 0 15px rgb(0 128 255 / 20%);
   }
+
   to {
     text-shadow:
       0 0 8px rgb(0 128 255 / 50%),
@@ -5368,10 +5373,7 @@ a:hover .external-link-icon {
 [data-theme="futuristic-light"] .feed-section::before {
   content: "";
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
+  inset: -2px;
   background: linear-gradient(
     135deg,
     rgb(0 128 255 / 25%),
@@ -5381,7 +5383,7 @@ a:hover .external-link-icon {
   background-size: 200% 200%;
   border-radius: inherit;
   z-index: -1;
-  opacity: 20%;
+  opacity: 0.2;
   filter: blur(8px);
   animation: gradient-shift-light 6s ease infinite;
 }
@@ -5391,6 +5393,7 @@ a:hover .external-link-icon {
   100% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
@@ -5425,6 +5428,7 @@ a:hover .external-link-icon {
   0% {
     background-position: 0% 0%;
   }
+
   100% {
     background-position: 0% 100%;
   }
