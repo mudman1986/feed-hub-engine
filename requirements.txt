@@ -6,11 +6,11 @@ pytest==9.0.3
 pytest-cov==6.0.0
 
 # Code formatters
-black==26.3.1
+black==26.10.1
 isort==5.13.2
 
 # Linters
-pylint==4.0.4
+pylint==4.0.9
 flake8==7.3.0
 mypy==1.19.1
 
